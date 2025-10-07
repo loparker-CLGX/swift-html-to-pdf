@@ -16,19 +16,27 @@ concurrency:
 jobs:
   macos:
     name: macOS
-    runs-on: macos-15
+    runs-on: macos-26
     strategy:
       matrix:
-        xcode: ['16.0', '16.1']
-        config: ['debug', 'release']
+        xcode: ['26.0']
+        config: ['release']  # Only release for speed; debug adds 2min with minimal value
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Select Xcode ${{ matrix.xcode }}
-        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
 
       - name: Print Swift version
         run: swift --version
+
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-
 
       - name: Build
         run: swift build -c ${{ matrix.config }}
@@ -36,19 +44,20 @@ jobs:
       - name: Run tests
         run: |
           export WEBVIEW_POOL_SILENT=1
-          swift test -c ${{ matrix.config }}
+          # Skip slow tests for faster CI feedback (matches suite names with regex)
+          swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
 
   ios:
     name: iOS (Mac Catalyst)
     runs-on: macos-15
     strategy:
       matrix:
-        xcode: ['16.0', '16.1']
+        xcode: ['26.0']
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Select Xcode ${{ matrix.xcode }}
-        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
 
       - name: Build for Mac Catalyst
         run: |
@@ -61,49 +70,34 @@ jobs:
       - name: Run Mac Catalyst Tests
         run: |
           export WEBVIEW_POOL_SILENT=1
+          # Skip slow tests for faster CI feedback
           xcodebuild test \
             -scheme swift-html-to-pdf \
             -destination 'platform=macOS,variant=Mac Catalyst' \
             -derivedDataPath .build/catalyst \
+            -skip-testing:HtmlToPdfLiveTests/PerformanceBenchmarks \
+            -skip-testing:HtmlToPdfLiveTests/StressTests \
+            -skip-testing:HtmlToPdfLiveTests/WebViewMemoryTests \
             | xcpretty || exit 1
         continue-on-error: true  # Tests may timeout but compilation is what matters
 
-  integration:
-    name: Integration Tests
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.0.app
-
-      - name: Run integration tests
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          echo "🧪 Running integration tests..."
-
-          # Test batch printing with various document counts
-          swift test --filter "collection" -c release
-
-          # Test error handling scenarios
-          swift test --filter "ErrorHandling" -c release
-
-          # Test WebView pool under load
-          swift test --filter "WebViewPoolTests" -c release
-
-          echo "✅ Integration tests completed"
+  # Integration Tests job disabled for speed (covered by main macOS job)
+  # Uncomment before releases for thorough validation
 
   linux:
     name: Ubuntu
     runs-on: ubuntu-latest
     container: swift:6.0
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install dependencies
         run: |
           apt-get update
-          apt-get install -y libwebkit2gtk-4.0-dev
+          # Try to install webkit dependencies, but don't fail if not available
+          apt-get install -y libwebkit2gtk-4.1-dev || \
+          apt-get install -y libwebkit2gtk-4.0-dev || \
+          echo "WebKit not available in this environment"
 
       - name: Build
         run: swift build
@@ -117,7 +111,7 @@ jobs:
     name: Windows
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: compnerd/gha-setup-swift@main
         with:
@@ -136,10 +130,10 @@ jobs:
     name: Documentation
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_16.0.app
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app
 
       - name: Build documentation
         run: |

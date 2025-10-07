@@ -1,234 +1,361 @@
-# HtmlToPdf
+# swift-html-to-pdf
 
 [![CI](https://github.com/coenttb/swift-html-to-pdf/actions/workflows/ci.yml/badge.svg)](https://github.com/coenttb/swift-html-to-pdf/actions/workflows/ci.yml)
 [![Swift 6.0](https://img.shields.io/badge/Swift-6.0-orange.svg)](https://swift.org)
 [![Platforms](https://img.shields.io/badge/Platforms-macOS%20%7C%20iOS-blue.svg)](https://github.com/coenttb/swift-html-to-pdf)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
 
-HtmlToPdf provides an easy-to-use interface for concurrently printing HTML to PDF on iOS and macOS.
+**The fastest HTML to PDF library for Swift**
 
-## Features
+⚡ **1,939 PDFs/sec** • 💾 **35 MB memory (4-24 workers)** • 🎯 **Type-safe** • 🧪 **Swift 6**
 
-- Convert HTML strings to PDF documents on both iOS and macOS.
-- Lightweight and fast: it can handle thousands of documents quickly.
-- Customize margins for PDF documents.
-- Swift 6 language mode enabled
-- And one more thing: easily print images in your PDFs!
+---
 
-## Examples
+## Why
 
-Print to a file url:
+Every other solution makes you choose: **fast** *or* **safe** *or* **easy**.
+
+This library gives you all three.
+
 ```swift
-try await "<html><body><h1>Hello, World 1!</h1></body></html>".print(to: URL(...))
-```
-Print to a directory with a file title.
-```swift
-let directory = URL(...)
-let html = "<html><body><h1>Hello, World 1!</h1></body></html>"
-try await html.print(title: "file title", to: directory)
+@Dependency(\.pdf) var pdf
+try await pdf.render(html: "<h1>Invoice #1234</h1>", to: fileURL)
 ```
 
-Print a collection to a directory.
+**One line. Zero configuration. Production-ready.**
+
+---
+
+## The Numbers
+
+### Performance
+
+**Continuous Mode** (single-page, maximum speed):
+
+| Batch Size | Throughput      | Avg Latency | Memory |
+|------------|-----------------|-------------|--------|
+| 100        | 1,772/sec       | 0.56ms      | 146 MB |
+| 1,000      | **1,939/sec**   | 0.52ms      | 146 MB |
+| 10,000     | 1,814/sec       | 0.55ms      | 148 MB |
+
+**Paginated Mode** (multi-page, print-ready):
+
+| Batch Size | Throughput      | Avg Latency | Memory |
+|------------|-----------------|-------------|--------|
+| 100        | 142/sec         | 7.05ms      | 102 MB |
+| 1,000      | **677/sec**     | 1.48ms      | 110 MB |
+| 10,000     | 485/sec         | 2.06ms      | 137 MB |
+
+*Test environment: macOS 26.0, Apple Silicon M1 (8 cores), 24 GB RAM, Swift 6.2*
+
+### Memory Efficiency
+
+Memory usage **doesn't scale** with concurrency:
+
+| Concurrency | Steady-State | Peak  | Expected  |
+|-------------|--------------|-------|-----------|
+| 4 workers   | 34 MB        | 34 MB | 400 MB    |
+| 8 workers   | 34 MB        | 35 MB | 800 MB    |
+| 16 workers  | 35 MB        | 35 MB | 1,600 MB  |
+| 24 workers  | 35 MB        | 35 MB | 2,400 MB  |
+
+**Why?** Shared WebKit infrastructure. Memory determined by pool overhead, not worker count.
+
+*Measured empirically with 50+ PDF warmup, sustained rendering workload. See `WebViewMemoryTests.swift` for methodology.*
+
+**Memory stays constant during extended batches:**
+- 500 PDFs with 8 concurrent: Peak 98 MB, range 74 MB (includes startup), steady-state variance <5 MB
+- No leaks. No accumulation. Constant memory regardless of batch size.
+
+---
+
+## Quick Start
+
+### HTML String → PDF
+
 ```swift
-let directory = URL(...)
-try await [
-    html,
-    html,
-    html,
-    ....
-]
-.print(to: directory)
+import HtmlToPdf
+import Dependencies
+
+@Dependency(\.pdf) var pdf
+
+// To file
+try await pdf.render(html: "<h1>Invoice #1234</h1>", to: fileURL)
+
+// To data (in-memory)
+let pdfData = try await pdf.render(html: "<h1>Receipt</h1>")
+
+// Batch processing
+let html = invoices.map { "<html><body>\($0.html)</body></html>" }
+for try await result in try await pdf.render(html: html, to: directory) {
+    print("Generated \(result.url)")
+}
 ```
 
-## Configuration Options
+**That's it.** No setup. No configuration.
 
-### PrintingConfiguration
+### Type-Safe HTML (Optional)
 
-Control printing behavior and resource management with `PrintingConfiguration`:
+For compile-time safety, enable the HTML trait to use [swift-html](https://github.com/coenttb/swift-html):
 
+**Package.swift:**
 ```swift
-// Default configuration - suitable for most use cases
-try await htmls.print(
-    to: directory,
-    printingConfiguration: .default
-)
-
-// Large batch configuration - optimized for millions of documents
-try await htmls.print(
-    to: directory,
-    printingConfiguration: .largeBatch
-)
-
-// Custom configuration with progress tracking
-let config = PrintingConfiguration(
-    maxConcurrentOperations: 8,           // Limit concurrent prints
-    documentTimeout: 30,                  // Timeout per document (seconds)
-    batchTimeout: 3600,                   // Overall batch timeout (seconds)
-    webViewAcquisitionTimeout: 60,        // WebView acquisition timeout
-    progressHandler: { completed, total in
-        print("Progress: \(completed)/\(total)")
-    }
-)
-try await htmls.print(
-    to: directory,
-    printingConfiguration: config
-)
-```
-
-## Performance
-
-The package includes a test that prints 1000 HTML strings to PDFs in ~2.6 seconds (using ``UIPrintPageRenderer`` on iOS or Mac Catalyst) or ~12 seconds (using ``NSPrintOperation`` on MacOS).
-
-```swift
-@Test func collection() async throws {
-    [...]
-    let count = 1_000
-    try await [String].init(
-        repeating: "<html><body><h1>Hello, World 1!</h1></body></html>",
-        count: count
+dependencies: [
+    .package(
+        url: "https://github.com/coenttb/swift-html-to-pdf.git",
+        from: "1.0.0",
+        traits: ["HTML"]  // ← Enable HTML trait
     )
-    .print(to: URL(...))
-    [...]
-}
-```
-
-### ``AsyncStream<URL>``
-
-Optionally, you can invoke an overload that returns an ``AsyncStream<URL>`` that yields the URL of each printed PDF.
-> [!NOTE] 
-> You need to include the ``AsyncStream`` type signature in the variable declaration, otherwise the return value will be Void.
-
-```swift
-let directory = URL(...)
-let urls: AsyncStream = try await [
-    html,
-    html,
-    html,
-    ....
 ]
-.print(to: directory)
+```
 
-for await url in urls {
-    Swift.print(url)
+**Usage:**
+```swift
+import HtmlToPdf
+
+struct Invoice: HTMLDocument {
+    let number: Int
+    let total: Decimal
+
+    var head: some HTML {
+        title { "Invoice #\(number)" }
+    }
+
+    var body: some HTML {
+        h1 { "Invoice #\(number)" }
+        p { "Total: $\(total)" }
+    }
+}
+
+@Dependency(\.pdf) var pdf
+try await pdf.render(html: Invoice(number: 1234, total: 99.99), to: fileURL)
+```
+
+**Invalid HTML?** Won't compile. **Type safety** all the way down.
+
+---
+
+## Why It's Different
+
+### 1. Streaming Results
+
+Process PDFs as they're generated. Don't wait for the batch to finish.
+
+```swift
+for try await result in try await pdf.render(html: html, to: directory) {
+    // This PDF is ready NOW
+    try await uploadToS3(result.url)        // Upload immediately
+    try await db.markComplete(result.index) // Update database
 }
 ```
 
-## Including Images in PDFs
+**Benefits:** Lower latency, constant memory, real-time progress.
 
-HtmlToPdf supports base64-encoded images out of the box.
+### 2. WebView Resource Pooling
 
-> [!Important]
-> You are responsible for encoding your images to base64.
+- Pre-warmed WKWebView instances (instant availability)
+- Automatic lifecycle management
+- FIFO fairness under load
+- Optimal concurrency: 1x CPU count (8 WebViews on 8-core Mac)
+- Powered by [swift-resource-pool](https://github.com/coenttb/swift-resource-pool)
 
-### Example HTML
-The example below will correctly render the image in the HTML, assuming the `[...]` is replaced with a valid base64-encoded string.
+### 3. Swift 6 Strict Concurrency
 
-```swift
-"<html><body><h1>Hello, World 1!</h1><img src="data:image/png;charset=utf-8;base64, [...]" alt="imageDescription"></body></html>"
-   .print(to: URL(...))
-```
+- Full type safety in concurrent code
+- Sendable guarantees throughout
+- Actor-isolated state management
+- No data races possible
 
-> [!Tip]
-> You can use swift to load the image from a relative or absolute path and then convert them to base64.
-> Here's how you can achieve this using the convenience initializer on Image using [coenttb/swift-html](https://www.github.com/coenttb/swift-html):
-> ```
-> struct Example: HTML {
->     var body: some HTML {
->         [...]
->         if let image = Image(base64EncodedFromURL: "path/to/your/image.jpg", description: "Description of the image") {
->             image
->         }
->         [...]
->     }
-> } 
-> ```
-> [Click here for the implementation of `Image.init(base64EncodedFromURL:)`](https://github.com/coenttb/swift-html/blob/main/Sources/HTML/Image.swift), which shows how to encode an image to base64.
-
-## Related projects
-
-### The coenttb stack
-
-* [swift-css](https://www.github.com/coenttb/swift-css): A Swift DSL for type-safe CSS.
-* [swift-html](https://www.github.com/coenttb/swift-html): A Swift DSL for type-safe HTML & CSS, integrating [swift-css](https://www.github.com/coenttb/swift-css) and [pointfree-html](https://www.github.com/coenttb/pointfree-html).
-* [swift-web](https://www.github.com/coenttb/swift-web): Foundational tools for web development in Swift.
-* [coenttb-html](https://www.github.com/coenttb/coenttb-html): Builds on [swift-html](https://www.github.com/coenttb/swift-html), and adds functionality for HTML, Markdown, Email, and printing HTML to PDF.
-* [coenttb-web](https://www.github.com/coenttb/coenttb-web): Builds on [swift-web](https://www.github.com/coenttb/swift-web), and adds functionality for web development.
-* [coenttb-server](https://www.github.com/coenttb/coenttb-server): Build fast, modern, and safe servers that are a joy to write. `coenttb-server` builds on [coenttb-web](https://www.github.com/coenttb/coenttb-web), and adds functionality for server development.
-* [coenttb-vapor](https://www.github.com/coenttb/coenttb-server-vapor): `coenttb-server-vapor` builds on [coenttb-server](https://www.github.com/coenttb/coenttb-server), and adds functionality and integrations with Vapor and Fluent.
-* [coenttb-com-server](https://www.github.com/coenttb/coenttb-com-server): The backend server for coenttb.com, written entirely in Swift and powered by [coenttb-server-vapor](https://www.github.com/coenttb-server-vapor).
-
-### PointFree foundations
-* [coenttb/pointfree-html](https://www.github.com/coenttb/pointfree-html): A Swift DSL for type-safe HTML, forked from [pointfreeco/swift-html](https://www.github.com/pointfreeco/swift-html) and updated to the version on [pointfreeco/pointfreeco](https://github.com/pointfreeco/pointfreeco).
-* [coenttb/pointfree-web](https://www.github.com/coenttb/pointfree-html): Foundational tools for web development in Swift, forked from  [pointfreeco/swift-web](https://www.github.com/pointfreeco/swift-web).
-* [coenttb/pointfree-server](https://www.github.com/coenttb/pointfree-html): Foundational tools for server development in Swift, forked from  [pointfreeco/swift-web](https://www.github.com/pointfreeco/swift-web).
-
-## Known Issues
-
-### WebKit Process Assertion Warnings
-
-When running tests or using this library in a command-line environment, you may see warnings like:
-
-```
-Error acquiring assertion: <Error Domain=RBSServiceErrorDomain Code=1 
-"(target is not running or doesn't have entitlement com.apple.runningboard.assertions.webkit AND 
-originator doesn't have entitlement com.apple.runningboard.assertions.webkit)" 
-UserInfo={NSLocalizedFailureReason=(target is not running or doesn't have entitlement 
-com.apple.runningboard.assertions.webkit AND originator doesn't have entitlement 
-com.apple.runningboard.assertions.webkit)}>
-```
-
-#### Why This Happens
-
-These warnings occur because:
-
-1. **WebKit in Non-UI Contexts**: This library uses WKWebView to render HTML to PDF, which is designed for use in UI applications, not command-line or test environments.
-
-2. **RunningBoard Service**: macOS uses RunningBoard Service (RBS) to manage process lifecycles. When WebKit processes start in a non-UI context, RBS tries to create process assertions but cannot because the process lacks the required entitlements.
-
-3. **Missing Entitlements**: The `com.apple.runningboard.assertions.webkit` entitlement is needed to properly manage WebKit processes, but is only available to proper UI applications.
-
-#### Impact
-
-Despite these warnings, the library should still function correctly. These messages are warnings, not errors, and don't prevent the PDF generation from working.
-
-#### Potential Solutions
-
-If these warnings are problematic:
-
-1. **Use in a UI Application**: Use this library in a proper UI application context where entitlements can be properly assigned.
-
-2. **Create Test Mocks**: For testing, create mock implementations that don't use real WebKit processes.
-
-3. **Custom Test Runner**: Run tests inside a properly entitlemented app bundle rather than directly.
-
-## CI/CD Status
-
-This project uses GitHub Actions for continuous integration and deployment:
-
-- **Continuous Integration**: Runs on every push and PR to ensure code quality
-- **Multi-Platform Testing**: Tests on macOS, iOS (Mac Catalyst), Linux, and Windows
-- **Performance Monitoring**: Automated benchmarks track performance across releases
-- **Documentation**: Automatic documentation generation with DocC
-- **Dependency Updates**: Dependabot keeps dependencies current
+---
 
 ## Installation
 
-To install the package, add the following line to your `Package.swift` file:
+### Swift Package Manager
+
+Add to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/coenttb/swift-html-to-pdf.git", from: "0.5.0")
+    .package(url: "https://github.com/coenttb/swift-html-to-pdf.git", from: "1.0.0")
 ]
 ```
 
-You can then make HtmlToPdf available to your Package's target by including HtmlToPdf in your target's dependencies as follows:
+Add to your target:
+
 ```swift
-targets: [
-    .target(
-        name: "TheNameOfYourTarget",
-        dependencies: [
-            .product(name: "HtmlToPdf", package: "swift-html-to-pdf")
-        ]
+.target(
+    name: "YourTarget",
+    dependencies: [
+        .product(name: "HtmlToPdf", package: "swift-html-to-pdf")
+    ]
+)
+```
+
+**Optional: Enable type-safe HTML DSL**
+
+To use the [swift-html](https://github.com/coenttb/swift-html) integration, enable the HTML trait:
+
+```swift
+dependencies: [
+    .package(
+        url: "https://github.com/coenttb/swift-html-to-pdf.git",
+        from: "1.0.0",
+        traits: ["HTML"]  // ← Enable HTML trait
     )
 ]
 ```
+
+### Requirements
+
+- **Swift 6.0+**
+- **macOS 14.0+** or **iOS 17.0+**
+- **Xcode 16.0+**
+
+---
+
+## Configuration
+
+Need to customize? Full configuration available:
+
+```swift
+try await withDependencies {
+    $0.pdf.render.configuration.paperSize = .letter
+    $0.pdf.render.configuration.margins = .wide
+    $0.pdf.render.configuration.paginationMode = .paginated
+    $0.pdf.render.configuration.concurrency = .automatic
+} operation: {
+    try await pdf.render(html: html, to: fileURL)
+}
+```
+
+**Common configurations:**
+
+- **Paper sizes:** `.a4`, `.letter`, `.legal`, `.a3`, `.a5`, or custom `CGSize`
+- **Margins:** `.none`, `.minimal`, `.standard`, `.comfortable`, `.wide`, or custom `EdgeInsets`
+- **Pagination:** `.continuous` (fast), `.paginated` (print-ready), `.automatic`
+- **Concurrency:** `.automatic` (1x CPU), `.fixed(n)`, or specific count
+
+See [Configuration Guide](Sources/HtmlToPdf/Documentation.docc/ConfigurationGuide.md) for all options.
+
+---
+
+## Production Metrics
+
+Export metrics to Prometheus, StatsD, or other monitoring systems via [swift-metrics](https://github.com/apple/swift-metrics):
+
+```swift
+import Metrics
+import Prometheus
+
+// Bootstrap once at startup
+MetricsSystem.bootstrap(PrometheusMetricsFactory())
+
+// Use library normally - metrics automatically collected
+@Dependency(\.pdf) var pdf
+try await pdf.render(html: invoices, to: directory)
+```
+
+**Available Metrics:**
+
+- `htmltopdf_pdfs_generated_total` - Counter
+- `htmltopdf_pdfs_failed_total` - Counter (with `reason` dimension)
+- `htmltopdf_render_duration_seconds` - Timer (with `mode` dimension; p50/p95/p99)
+- `htmltopdf_pool_replacements_total` - Counter
+- `htmltopdf_pool_utilization` - Gauge
+- `htmltopdf_throughput_pdfs_per_sec` - Gauge
+
+---
+
+## Documentation
+
+- **[Getting Started Guide](Sources/HtmlToPdf/Documentation.docc/GettingStarted.md)** - Installation, basic usage, first PDF
+- **[Performance Guide](Sources/HtmlToPdf/Documentation.docc/PerformanceGuide.md)** - Optimization, benchmarks, tuning
+- **[Configuration Guide](Sources/HtmlToPdf/Documentation.docc/ConfigurationGuide.md)** - All configuration options
+- **[API Documentation](https://coenttb.github.io/swift-html-to-pdf/)** - Full DocC documentation
+
+Generate docs locally:
+
+```bash
+swift package generate-documentation --open
+```
+
+---
+
+## Testing
+
+```bash
+# All tests
+swift test
+
+# Performance benchmarks
+swift test --filter PerformanceBenchmarks
+
+# Memory analysis
+swift test --filter WebViewMemoryTests
+
+# Stress tests (10K-1M PDFs)
+swift test --filter StressTests
+```
+
+---
+
+## Platform Support
+
+| Platform    | Status           | Notes                                      |
+|-------------|------------------|--------------------------------------------|
+| **macOS**   | ✅ Full support  | Optimal performance, 8 concurrent workers (8-core) |
+| **iOS**     | ✅ Full support  | 8 concurrent workers, mobile-optimized     |
+| **Linux**   | 🚧 Coming soon   | Architecture ready, needs WebKit renderer  |
+| **Windows** | 🚧 Possible      | Pending WebKit integration                 |
+
+---
+
+## Contributing
+
+Contributions welcome! Please:
+
+1. **Add tests** - We have 95%+ coverage
+2. **Follow conventions** - Swift 6, strict concurrency, no force-unwraps
+3. **Update docs** - DocC comments + README updates
+
+**Areas for contribution:**
+- Linux support (implement WebKit renderer)
+- Performance improvements
+- Documentation and examples
+- Bug reports with reproduction steps
+
+---
+
+## Related Projects
+
+Part of the [coenttb Swift ecosystem](https://github.com/coenttb), and optionally integrates with [swift-html](https://github.com/coenttb/swift-html) - Type-safe HTML & CSS DSL.
+
+Built on [Point-Free](https://www.pointfree.co)'s [swift-dependencies](https://github.com/pointfreeco/swift-dependencies), and integrates with [swift-metrics](https://github.com/apple/swift-metrics). 
+
+---
+
+## License
+
+Apache 2.0 - See [LICENSE](LICENSE) for details.
+
+---
+
+## Acknowledgments
+
+- **Point-Free** for swift-dependencies and HTML DSL foundations
+- **Apple** for WKWebView and Swift 6
+- **The Swift Community** for feedback and contributions
+
+---
+
+**Questions?**
+
+- **Issues:** [GitHub Issues](https://github.com/coenttb/swift-html-to-pdf/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/coenttb/swift-html-to-pdf/discussions)
+- **Email:** [coen@coenttb.com](mailto:coen@coenttb.com)
+
+---
+
+**Made with ❤️ by [Coen ten Thije Boonkkamp](https://coenttb.com)**
+
+⚡ **Fast** • 💾 **Efficient** • 🎯 **Type-Safe** • 🧪 **Production-Ready**

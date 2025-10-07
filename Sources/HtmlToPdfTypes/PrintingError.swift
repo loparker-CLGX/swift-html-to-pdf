@@ -62,6 +62,14 @@ public enum PrintingError: Error, LocalizedError, Sendable {
     /// Operation was cancelled
     case cancelled(message: String?)
 
+    /// No result was produced from rendering operation
+    case noResultProduced
+
+    // MARK: - Platform Capability Errors
+
+    /// Platform lacks required capability for this operation
+    case capabilityUnavailable(capability: String, platform: String, reason: String)
+
     // MARK: - LocalizedError Implementation
 
     public var errorDescription: String? {
@@ -120,6 +128,12 @@ public enum PrintingError: Error, LocalizedError, Sendable {
                 return "Operation cancelled: \(message)"
             }
             return "Operation cancelled"
+
+        case .noResultProduced:
+            return "No result was produced from rendering operation"
+
+        case .capabilityUnavailable(let capability, let platform, let reason):
+            return "Platform '\(platform)' does not support '\(capability)': \(reason)"
         }
     }
 
@@ -163,6 +177,12 @@ public enum PrintingError: Error, LocalizedError, Sendable {
 
         case .cancelled:
             return "User or system cancelled the operation"
+
+        case .noResultProduced:
+            return "The rendering operation completed but produced no output"
+
+        case .capabilityUnavailable:
+            return "This operation requires platform capabilities that are not available"
         }
     }
 
@@ -206,25 +226,119 @@ public enum PrintingError: Error, LocalizedError, Sendable {
 
         case .cancelled:
             return "Retry the operation if needed"
+
+        case .noResultProduced:
+            return "Check that the document was properly configured and retry"
+
+        case .capabilityUnavailable(let capability, let platform, _):
+            return "Use a different platform or reduce '\(capability)' requirements to match '\(platform)' capabilities"
         }
     }
 }
 
-// MARK: - Convenience Initializers
+// MARK: - Error Code Support
 
 extension PrintingError {
+    /// Stable error code for programmatic branching
+    ///
+    /// Use this for switch statements and error handling logic instead of pattern matching.
+    /// These codes are guaranteed to remain stable across versions for long-term compatibility.
+    ///
+    /// Example:
+    /// ```swift
+    /// do {
+    ///     try await pdf.render(html, to: url)
+    /// } catch let error as PrintingError {
+    ///     switch error.errorCode {
+    ///     case "webview_acquisition_timeout":
+    ///         // Increase timeout and retry
+    ///     case "pdf_generation_failed":
+    ///         // Check underlying error
+    ///         if let underlying = error.underlyingError {
+    ///             // Handle specific underlying error
+    ///         }
+    ///     default:
+    ///         // Generic error handling
+    ///     }
+    /// }
+    /// ```
+    public var errorCode: String {
+        metricsReason
+    }
 
-    /// Create an error from a WebViewPoolActor.Error
-    static func from(poolError: WebViewPoolActor.Error) -> PrintingError {
-        switch poolError {
-        case .timeout:
-            return .webViewAcquisitionTimeout(timeoutSeconds: 300) // Default timeout
-        case .poolExhausted:
-            return .webViewPoolExhausted(pendingRequests: 0)
-        case .queueOverload:
-            return .webViewPoolExhausted(pendingRequests: 100) // Estimate
+    /// Access to underlying error for branching logic
+    ///
+    /// Many errors wrap underlying system errors (WKError, URLError, NSError).
+    /// Use this to access the underlying error for more specific error handling.
+    public var underlyingError: Error? {
+        switch self {
+        case .invalidFilePath(_, let error),
+             .webViewPoolInitializationFailed(let error),
+             .printOperationFailed(_, let error):
+            return error
+        case .directoryCreationFailed(_, let error),
+             .webViewLoadingFailed(let error),
+             .webViewNavigationFailed(let error),
+             .pdfGenerationFailed(let error):
+            return error
+        default:
+            return nil
+        }
+    }
+}
+
+// MARK: - Metrics Support
+
+extension PrintingError {
+    /// Label for metrics dimension tracking
+    ///
+    /// Provides a stable string representation for use in metrics dimensions.
+    /// This allows segmentation of failure metrics by error type.
+    var metricsReason: String {
+        switch self {
+        // Document Errors
+        case .invalidHTML:
+            return "invalid_html"
+        case .invalidFilePath:
+            return "invalid_file_path"
+        case .directoryCreationFailed:
+            return "directory_creation_failed"
+
+        // WebView Errors
+        case .webViewLoadingFailed:
+            return "webview_loading_failed"
+        case .webViewNavigationFailed:
+            return "webview_navigation_failed"
+        case .webViewRenderingTimeout:
+            return "webview_rendering_timeout"
+
+        // Pool Errors
+        case .webViewPoolExhausted:
+            return "webview_pool_exhausted"
+        case .webViewAcquisitionTimeout:
+            return "webview_acquisition_timeout"
+        case .webViewPoolInitializationFailed:
+            return "webview_pool_initialization_failed"
+
+        // PDF Generation Errors
+        case .pdfGenerationFailed:
+            return "pdf_generation_failed"
+        case .printOperationFailed:
+            return "print_operation_failed"
+        case .documentTimeout:
+            return "document_timeout"
+        case .batchTimeout:
+            return "batch_timeout"
+
+        // Cancellation
         case .cancelled:
-            return .cancelled(message: nil)
+            return "cancelled"
+        case .noResultProduced:
+            return "no_result_produced"
+
+        // Platform Capability Errors
+        case .capabilityUnavailable:
+            return "capability_unavailable"
         }
     }
 }

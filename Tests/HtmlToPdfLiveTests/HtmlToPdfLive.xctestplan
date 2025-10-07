@@ -1,7 +1,7 @@
 {
   "configurations" : [
     {
-      "id" : "D1A54D3C-4651-44CD-AB9D-502650D4C8D8",
+      "id" : "AD1299C3-7DC2-4405-A37D-B11A95559BA8",
       "name" : "Configuration 1",
       "options" : {
 
@@ -9,14 +9,14 @@
     }
   ],
   "defaultOptions" : {
-
+    "testTimeoutsEnabled" : true
   },
   "testTargets" : [
     {
       "target" : {
         "containerPath" : "container:",
-        "identifier" : "HtmlToPdfTests",
-        "name" : "HtmlToPdfTests"
+        "identifier" : "HtmlToPdfLiveTests",
+        "name" : "HtmlToPdfLiveTests"
       }
     }
   ],
