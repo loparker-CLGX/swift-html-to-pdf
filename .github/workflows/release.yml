@@ -113,7 +113,7 @@ jobs:
     name: Publish Documentation
     needs: validate
     runs-on: macos-26
-    if: github.event_name == 'release'
+    if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
     permissions:
       contents: read
       pages: write
