@@ -46,6 +46,9 @@ jobs:
           swift package \
             --allow-writing-to-directory ./docs \
             generate-documentation \
+            --enable-experimental-combined-documentation \
+            --target HtmlToPdfTypes \
+            --target HtmlToPdfLive \
             --target HtmlToPdf \
             --output-path ./docs \
             --transform-for-static-hosting \
@@ -84,6 +87,9 @@ jobs:
           swift package \
             --allow-writing-to-directory ./docs \
             generate-documentation \
+            --enable-experimental-combined-documentation \
+            --target HtmlToPdfTypes \
+            --target HtmlToPdfLive \
             --target HtmlToPdf \
             --output-path ./docs \
             --transform-for-static-hosting \
@@ -123,31 +129,17 @@ jobs:
 
       - name: Build documentation
         run: |
-          # Generate docs for HtmlToPdf (includes re-exported symbols from Types & Live)
+          # Generate combined documentation (experimental)
           swift package \
             --allow-writing-to-directory ./docs \
             generate-documentation \
+            --enable-experimental-combined-documentation \
+            --target HtmlToPdfTypes \
+            --target HtmlToPdfLive \
             --target HtmlToPdf \
             --output-path ./docs \
             --transform-for-static-hosting \
-            --hosting-base-path swift-html-to-pdf \
-            --include-extended-types
-
-          # Create root index.html redirect
-          cat > ./docs/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html>
-            <head>
-              <meta charset="utf-8">
-              <title>Redirecting to swift-html-to-pdf documentation</title>
-              <meta http-equiv="refresh" content="0; url=./documentation/htmltopdf/">
-              <link rel="canonical" href="./documentation/htmltopdf/">
-            </head>
-            <body>
-              <p>Redirecting to <a href="./documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
-            </body>
-          </html>
-          EOF
+            --hosting-base-path swift-html-to-pdf
 
       - name: Setup Pages
         uses: actions/configure-pages@v4

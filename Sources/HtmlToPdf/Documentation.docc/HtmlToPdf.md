@@ -1,31 +1,31 @@
 # ``HtmlToPdf``
 
-State-of-the-art HTML to PDF generation for Apple platforms with exceptional performance and type safety.
+Unified API for HTML to PDF conversion.
 
 ## Overview
 
-HtmlToPdf provides a powerful, type-safe API for generating PDF documents from HTML with industry-leading throughput of over 2,000 PDFs per second. Built with Swift 6 strict concurrency, it offers both beginner-friendly simplicity and advanced customization options.
+HtmlToPdf is the main entry point that combines types from HtmlToPdfTypes with implementations from HtmlToPdfLive. It provides a cohesive API surface and convenience methods for PDF generation.
 
-### Key Features
+### Quick Start
 
-- **⚡ Exceptional Performance**: 1,939 PDFs/sec peak throughput
-- **🎯 Type-Safe**: Full Swift 6 strict concurrency support
-- **📄 Dual Modes**: Fast continuous or print-ready paginated output
-- **🔄 Streaming**: Process results as they complete
-- **💾 Memory Efficient**: Constant memory usage regardless of batch size
-
-## Quick Start
-
-Generate a PDF in one line:
+Generate a PDF with one line:
 
 ```swift
 @Dependency(\.pdf) var pdf
-try await pdf.render(html: "<html><body><h1>Hello</h1></body></html>", to: fileURL)
+try await pdf.render(html: "<h1>Hello</h1>", to: fileURL)
 ```
+
+### Re-exported Modules
+
+This module re-exports types and implementations from:
+- **HtmlToPdfTypes**: Core types like `PDF`, `PDF.Configuration`, `PDF.Render.Client`
+- **HtmlToPdfLive**: Live dependency implementations
+
+Refer to those module documentations for detailed API reference.
 
 ## Topics
 
-### Essentials
+### Getting Started
 
 - <doc:GettingStarted>
 - <doc:PerformanceGuide>
@@ -34,31 +34,3 @@ try await pdf.render(html: "<html><body><h1>Hello</h1></body></html>", to: fileU
 ### Observability
 
 - <doc:MetricsGuide>
-
-### Core Types
-
-- ``PDF``
-- ``PDF/Render``
-- ``PDF/Configuration``
-- ``PDF/Document``
-- ``PDF/Result``
-
-### Rendering
-
-- ``PDF/Render/Client``
-- ``PDF/FailedDocument``
-
-### Configuration
-
-- ``PDF/PaginationMode``
-- ``PDF/ConcurrencyStrategy``
-- ``PDF/NamingStrategy``
-- ``EdgeInsets``
-
-### Error Handling
-
-- ``PrintingError``
-
-### Platform Features
-
-- ``PDF/Capabilities``

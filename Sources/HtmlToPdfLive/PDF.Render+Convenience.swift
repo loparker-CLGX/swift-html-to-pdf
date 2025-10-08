@@ -91,7 +91,7 @@ extension PDF.Render {
     ///
     /// Convenience method that forwards to `client.data()`.
     ///
-    /// - Parameter htmls: HTML strings to render (any sequence)
+    /// - Parameter html: HTML strings to render (any sequence)
     /// - Returns: Stream of PDF data as each completes
     /// - Throws: Rendering errors
     public func data(

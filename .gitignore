@@ -39,4 +39,5 @@ CLAUDE.MD
 *.tmp
 *.temp
 
-Ignored/
+# Generated documentation
+docs/
