@@ -60,11 +60,11 @@ jobs:
             <head>
               <meta charset="utf-8">
               <title>Redirecting to swift-html-to-pdf documentation</title>
-              <meta http-equiv="refresh" content="0; url=/swift-html-to-pdf/documentation/htmltopdf/">
-              <link rel="canonical" href="/swift-html-to-pdf/documentation/htmltopdf/">
+              <meta http-equiv="refresh" content="0; url=./documentation/htmltopdf/">
+              <link rel="canonical" href="./documentation/htmltopdf/">
             </head>
             <body>
-              <p>Redirecting to <a href="/swift-html-to-pdf/documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
+              <p>Redirecting to <a href="./documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
             </body>
           </html>
           EOF
@@ -116,11 +116,11 @@ jobs:
             <head>
               <meta charset="utf-8">
               <title>Redirecting to swift-html-to-pdf documentation</title>
-              <meta http-equiv="refresh" content="0; url=/swift-html-to-pdf/documentation/htmltopdf/">
-              <link rel="canonical" href="/swift-html-to-pdf/documentation/htmltopdf/">
+              <meta http-equiv="refresh" content="0; url=./documentation/htmltopdf/">
+              <link rel="canonical" href="./documentation/htmltopdf/">
             </head>
             <body>
-              <p>Redirecting to <a href="/swift-html-to-pdf/documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
+              <p>Redirecting to <a href="./documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
             </body>
           </html>
           EOF
@@ -178,11 +178,11 @@ jobs:
             <head>
               <meta charset="utf-8">
               <title>Redirecting to swift-html-to-pdf documentation</title>
-              <meta http-equiv="refresh" content="0; url=/swift-html-to-pdf/documentation/htmltopdf/">
-              <link rel="canonical" href="/swift-html-to-pdf/documentation/htmltopdf/">
+              <meta http-equiv="refresh" content="0; url=./documentation/htmltopdf/">
+              <link rel="canonical" href="./documentation/htmltopdf/">
             </head>
             <body>
-              <p>Redirecting to <a href="/swift-html-to-pdf/documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
+              <p>Redirecting to <a href="./documentation/htmltopdf/">swift-html-to-pdf documentation</a>...</p>
             </body>
           </html>
           EOF
