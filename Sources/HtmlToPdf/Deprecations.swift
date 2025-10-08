@@ -29,6 +29,7 @@ import HtmlToPdfLive
                  try await pdf.render(html: html, to: url)
              }
            """)
+@_documentation(visibility: internal)
 public typealias PDFConfiguration = OldPDFConfiguration
 
 /// Old `PrintingConfiguration` type - use `PDF.Configuration` instead
@@ -47,6 +48,7 @@ public typealias PDFConfiguration = OldPDFConfiguration
                  try await pdf.render(html: html, to: url)
              }
            """)
+@_documentation(visibility: internal)
 public typealias PrintingConfiguration = OldPrintingConfiguration
 
 /// Old `Document` type - use `PDF.Document` instead
@@ -63,6 +65,7 @@ public typealias PrintingConfiguration = OldPrintingConfiguration
              let doc = PDF.Document(html: html.toUTF8Bytes(), destination: url)
              try await pdf.render.client.documents([doc])
            """)
+@_documentation(visibility: internal)
 public typealias Document = OldDocument
 
 // MARK: - Deprecated String Extensions
@@ -87,6 +90,7 @@ extension String {
 
         See MIGRATION.md for detailed migration guide.
         """)
+    @_documentation(visibility: internal)
     @MainActor
     public func print(
         to fileUrl: URL,
@@ -123,6 +127,7 @@ extension String {
 
         Construct the full URL yourself: directory.appendingPathComponent(title).appendingPathExtension("pdf")
         """)
+    @_documentation(visibility: internal)
     @MainActor
     public func print(
         title: String,
@@ -163,6 +168,7 @@ extension Sequence<String> {
 
         See MIGRATION.md for detailed migration guide.
         """)
+    @_documentation(visibility: internal)
     public func print(
         to directory: URL,
         configuration: PDFConfiguration = .a4,
@@ -191,6 +197,7 @@ extension Sequence<String> {
 
 // MARK: - Old Configuration Types (for backward compatibility)
 
+@_documentation(visibility: internal)
 public struct OldPDFConfiguration: Sendable {
     public let paperSize: CGSize
     public let margins: EdgeInsets
@@ -218,6 +225,7 @@ extension OldPDFConfiguration {
     public static let letter = OldPDFConfiguration(paperSize: CGSize.letter, margins: EdgeInsets.standard)
 }
 
+@_documentation(visibility: internal)
 public struct OldPrintingConfiguration: Sendable {
     public let maxConcurrentOperations: Int?
     public let documentTimeout: TimeInterval?
@@ -254,6 +262,7 @@ public struct OldPrintingConfiguration: Sendable {
     }
 }
 
+@_documentation(visibility: internal)
 public struct OldDocument: Sendable {
     let fileUrl: URL
     let html: String
