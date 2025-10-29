@@ -113,13 +113,9 @@ dependencies: [
 ```swift
 import HtmlToPdf
 
-struct Invoice: HTMLDocument {
+struct Invoice: HTML {
     let number: Int
     let total: Decimal
-
-    var head: some HTML {
-        title { "Invoice #\(number)" }
-    }
 
     var body: some HTML {
         h1 { "Invoice #\(number)" }
@@ -129,6 +125,20 @@ struct Invoice: HTMLDocument {
 
 @Dependency(\.pdf) var pdf
 try await pdf.render(html: Invoice(number: 1234, total: 99.99), to: fileURL)
+```
+
+or even shorter:
+
+```swift
+import HtmlToPdf
+
+let invoice = HTMLDocument {
+    h1 { "Invoice #1234" }
+    p { "Total: $99.99" }
+}
+
+@Dependency(\.pdf) var pdf
+try await pdf.render(html: invoice, to: fileURL)
 ```
 
 **Invalid HTML?** Won't compile. **Type safety** all the way down.

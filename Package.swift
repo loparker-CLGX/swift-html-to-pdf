@@ -69,7 +69,8 @@ let package = Package(
         .trait(
             name: "HTML",
             description: "Include HTML integration (swift-html with PointFreeHTML)"
-        )
+        ),
+        .default(enabledTraits: ["HTML"])
     ],
     dependencies: [
         .swiftDependencies,
