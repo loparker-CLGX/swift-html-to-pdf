@@ -70,7 +70,7 @@ let package = Package(
             name: "HTML",
             description: "Include HTML integration (swift-html with PointFreeHTML)"
         ),
-        .default(enabledTraits: ["HTML"])
+//        .default(enabledTraits: ["HTML"])
     ],
     dependencies: [
         .swiftDependencies,
