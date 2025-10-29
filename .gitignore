@@ -41,3 +41,6 @@ CLAUDE.MD
 
 # Generated documentation
 docs/
+
+# Ignored directory
+Ignored/
