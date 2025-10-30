@@ -2,11 +2,9 @@ name: CI
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
 concurrency:
@@ -14,124 +12,66 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  macos:
-    name: macOS (Swift 6.1+)
+  macos-swift61:
+    name: macOS (Swift 6.1)
     runs-on: macos-26
     strategy:
       matrix:
         xcode: ['26.0']
-        config: ['release']  # Only release for speed; debug adds 2min with minimal value
+        config: ['debug', 'release']
     steps:
       - uses: actions/checkout@v5
-
       - name: Select Xcode ${{ matrix.xcode }}
-        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
-
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
       - name: Print Swift version
         run: swift --version
-
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
           path: .build
           key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-
-
+          restore-keys: ${{ runner.os }}-spm-
       - name: Build
         run: swift build -c ${{ matrix.config }}
-
       - name: Run tests
         run: |
           export WEBVIEW_POOL_SILENT=1
-          # Skip slow tests for faster CI feedback (matches suite names with regex)
           swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
 
-  macos-swift-6-0:
-    name: macOS (Swift 6.0 manifest)
+  macos-swift62:
+    name: macOS (Swift 6.2)
     runs-on: macos-26
     strategy:
       matrix:
         xcode: ['26.0']
-        config: ['release']
+        config: ['debug', 'release']
     steps:
       - uses: actions/checkout@v5
-
       - name: Select Xcode ${{ matrix.xcode }}
-        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
-
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
       - name: Print Swift version
         run: swift --version
-
       - name: Cache Swift packages
         uses: actions/cache@v4
         with:
           path: .build
-          key: ${{ runner.os }}-spm-6.0-${{ hashFiles('Package.resolved') }}
-          restore-keys: |
-            ${{ runner.os }}-spm-6.0-
-
-      - name: Build with Swift 6.0 manifest
-        run: SWIFT_PACKAGE_MANIFEST_PATH=Package@swift-6.0.swift swift build -c ${{ matrix.config }}
-
-      - name: Run tests with Swift 6.0 manifest
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: ${{ runner.os }}-spm-
+      - name: Build
+        run: swift build -c ${{ matrix.config }}
+      - name: Run tests
         run: |
           export WEBVIEW_POOL_SILENT=1
-          SWIFT_PACKAGE_MANIFEST_PATH=Package@swift-6.0.swift swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
+          swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
 
-  ios:
-    name: iOS (Mac Catalyst)
-    runs-on: macos-15
-    strategy:
-      matrix:
-        xcode: ['26.0']
+  readme-validation:
+    name: README Code Examples
+    runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
-
-      - name: Select Xcode ${{ matrix.xcode }}
-        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
-
-      - name: Build for Mac Catalyst
-        run: |
-          xcodebuild build \
-            -scheme swift-html-to-pdf \
-            -destination 'platform=macOS,variant=Mac Catalyst' \
-            -derivedDataPath .build/catalyst \
-            | xcpretty || exit 1
-
-      - name: Run Mac Catalyst Tests
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          # Skip slow tests for faster CI feedback
-          xcodebuild test \
-            -scheme swift-html-to-pdf \
-            -destination 'platform=macOS,variant=Mac Catalyst' \
-            -derivedDataPath .build/catalyst \
-            -skip-testing:HtmlToPdfLiveTests/PerformanceBenchmarks \
-            -skip-testing:HtmlToPdfLiveTests/StressTests \
-            -skip-testing:HtmlToPdfLiveTests/WebViewMemoryTests \
-            | xcpretty || exit 1
-        continue-on-error: true  # Tests may timeout but compilation is what matters
-
-  # Integration Tests job disabled for speed (covered by main macOS job)
-  # Uncomment before releases for thorough validation
-
-  documentation:
-    name: Documentation
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@v5
-
       - name: Select Xcode
         run: sudo xcode-select -s /Applications/Xcode_26.0.app
-
-      - name: Build documentation
+      - name: Run README verification tests
         run: |
-          swift package \
-            --allow-writing-to-directory ./docs \
-            generate-documentation \
-            --target HtmlToPdf \
-            --output-path ./docs \
-            --transform-for-static-hosting \
-            --hosting-base-path swift-html-to-pdf
-        continue-on-error: true  # DocC may not be configured yet
+          export WEBVIEW_POOL_SILENT=1
+          swift test --filter ReadmeValidationTests

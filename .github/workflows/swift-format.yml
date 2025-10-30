@@ -1,53 +1,16 @@
 name: Swift Format
-
 on:
-  pull_request:
-    paths:
-      - '**.swift'
-  workflow_dispatch:
+  push:
+    branches: [main]
 
 jobs:
-  swift-format:
-    name: Swift Format
+  format:
     runs-on: macos-26
     steps:
       - uses: actions/checkout@v5
-
-      - name: Select Xcode
-        run: sudo xcode-select -s /Applications/Xcode_26.0.1.app
-
-      - name: Install swift-format
-        run: |
-          git clone https://github.com/apple/swift-format.git
-          cd swift-format
-          swift build -c release
-          cp .build/release/swift-format /usr/local/bin/
-        continue-on-error: true
-
-      - name: Run swift-format (lint mode)
-        run: |
-          if command -v swift-format &> /dev/null; then
-            swift-format lint --recursive \
-              --ignore-unparsable-files \
-              --strict \
-              Sources Tests
-          else
-            echo "swift-format not available, skipping"
-          fi
-        continue-on-error: true
-
-      - name: Check for formatting issues
-        run: |
-          if command -v swift-format &> /dev/null; then
-            OUTPUT=$(swift-format lint --recursive --ignore-unparsable-files Sources Tests 2>&1)
-            if [ -n "$OUTPUT" ]; then
-              echo "⚠️ Swift formatting issues found:"
-              echo "$OUTPUT"
-              echo ""
-              echo "To fix these issues locally, run:"
-              echo "swift-format format --recursive --in-place Sources Tests"
-            else
-              echo "✅ No formatting issues found"
-            fi
-          fi
-        continue-on-error: true
+      - name: Format code
+        run: swift-format format --recursive --in-place Sources Tests
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v7
+        with:
+          commit_message: "Run swift-format"
