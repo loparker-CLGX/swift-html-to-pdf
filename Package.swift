@@ -40,7 +40,7 @@ extension Package.Dependency {
     static var swiftDependencies: Package.Dependency { .package(url: "https://github.com/pointfreeco/swift-dependencies", from: "1.8.0") }
     static var swiftLoggingExtras: Package.Dependency { .package(url: "https://github.com/coenttb/swift-logging-extras", from: "0.1.1") }
     static var swiftMetrics: Package.Dependency { .package(url: "https://github.com/apple/swift-metrics", from: "2.4.0") }
-    static var swiftResourcePool: Package.Dependency { .package(url: "https://github.com/coenttb/swift-resource-pool", from: "0.1.0") }
+    static var swiftResourcePool: Package.Dependency { .package(url: "https://github.com/coenttb/swift-resource-pool", from: "0.1.1") }
     static var swiftHtml: Package.Dependency { .package(url: "https://github.com/coenttb/swift-html", from: "0.1.0") }
 }
 
