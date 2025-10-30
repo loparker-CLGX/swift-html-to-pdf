@@ -116,34 +116,6 @@ jobs:
   # Integration Tests job disabled for speed (covered by main macOS job)
   # Uncomment before releases for thorough validation
 
-  linux:
-    name: Ubuntu (Swift 6.0 - Syntax Check Only)
-    runs-on: ubuntu-latest
-    container: swift:6.0
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Resolve dependencies (Swift 6.0 syntax validation)
-        run: swift package resolve
-
-      # Note: Build/test not run - WebKit required for PDF generation is not available on Linux
-
-  windows:
-    name: Windows (Swift 6.0 - Syntax Check Only)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - uses: compnerd/gha-setup-swift@main
-        with:
-          branch: swift-6.0-release
-          tag: 6.0-RELEASE
-
-      - name: Resolve dependencies (Swift 6.0 syntax validation)
-        run: swift package resolve
-
-      # Note: Build/test not run - WebKit required for PDF generation is not available on Windows
-
   documentation:
     name: Documentation
     runs-on: macos-15
