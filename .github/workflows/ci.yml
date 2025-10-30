@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   macos:
-    name: macOS
+    name: macOS (Swift 6.1+)
     runs-on: macos-26
     strategy:
       matrix:
@@ -46,6 +46,38 @@ jobs:
           export WEBVIEW_POOL_SILENT=1
           # Skip slow tests for faster CI feedback (matches suite names with regex)
           swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
+
+  macos-swift-6-0:
+    name: macOS (Swift 6.0 manifest)
+    runs-on: macos-26
+    strategy:
+      matrix:
+        xcode: ['26.0']
+        config: ['release']
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select Xcode ${{ matrix.xcode }}
+        run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.1.app
+
+      - name: Print Swift version
+        run: swift --version
+
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-6.0-${{ hashFiles('Package.resolved') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-6.0-
+
+      - name: Build with Swift 6.0 manifest
+        run: SWIFT_PACKAGE_MANIFEST_PATH=Package@swift-6.0.swift swift build -c ${{ matrix.config }}
+
+      - name: Run tests with Swift 6.0 manifest
+        run: |
+          export WEBVIEW_POOL_SILENT=1
+          SWIFT_PACKAGE_MANIFEST_PATH=Package@swift-6.0.swift swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
 
   ios:
     name: iOS (Mac Catalyst)
@@ -85,7 +117,7 @@ jobs:
   # Uncomment before releases for thorough validation
 
   linux:
-    name: Ubuntu
+    name: Ubuntu (Swift 6.0)
     runs-on: ubuntu-latest
     container: swift:6.0
     steps:
@@ -98,6 +130,9 @@ jobs:
           apt-get install -y libwebkit2gtk-4.1-dev || \
           apt-get install -y libwebkit2gtk-4.0-dev || \
           echo "WebKit not available in this environment"
+
+      - name: Resolve dependencies (must succeed)
+        run: swift package resolve
 
       - name: Build
         run: swift build
