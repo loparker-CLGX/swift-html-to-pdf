@@ -5,6 +5,24 @@
 
 A high-performance Swift library for converting HTML to PDF on Apple platforms using WKWebView.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Usage Examples](#usage-examples)
+- [Performance](#performance)
+- [Architecture](#architecture)
+- [Monitoring](#monitoring)
+- [Documentation](#documentation)
+- [Testing](#testing)
+- [Platform Support](#platform-support)
+- [Related Packages](#related-packages)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
+
 ## Overview
 
 swift-html-to-pdf provides HTML to PDF conversion with actor-based resource pooling, streaming results, and Swift 6 strict concurrency. Built on WKWebView for native rendering quality and performance.
