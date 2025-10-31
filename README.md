@@ -292,13 +292,23 @@ swift test --filter StressTests
 
 ## Related Packages
 
-Part of the [coenttb Swift ecosystem](https://github.com/coenttb).
+### Dependencies
 
-Integrates with:
-- [swift-html](https://github.com/coenttb/swift-html) - Type-safe HTML DSL for Swift (optional via HTML trait)
-- [swift-resource-pool](https://github.com/coenttb/swift-resource-pool) - Generic resource pooling for WebView lifecycle management
-- [swift-dependencies](https://github.com/pointfreeco/swift-dependencies) - Dependency injection framework by Point-Free
-- [swift-metrics](https://github.com/apple/swift-metrics) - Metrics API for production monitoring
+- [swift-html](https://github.com/coenttb/swift-html): The Swift library for domain-accurate and type-safe HTML & CSS.
+- [swift-logging-extras](https://github.com/coenttb/swift-logging-extras): A Swift package for integrating swift-logging with swift-dependencies.
+- [swift-resource-pool](https://github.com/coenttb/swift-resource-pool): A Swift package for actor-based resource pooling.
+
+### Used By
+
+- [pointfree-html-to-pdf](https://github.com/coenttb/pointfree-html-to-pdf): A Swift package integrating pointfree-html with swift-html-to-pdf.
+- [swift-document-templates](https://github.com/coenttb/swift-document-templates): A Swift package for data-driven business document creation.
+- [swift-folder](https://github.com/coenttb/swift-folder): A Swift package for creating folder structures and documents with declarative syntax.
+
+### Third-Party Dependencies
+
+- [pointfreeco/swift-dependencies](https://github.com/pointfreeco/swift-dependencies): A dependency management library for controlling dependencies in Swift.
+- [apple/swift-docc-plugin](https://github.com/apple/swift-docc-plugin): [Description needed for swift-docc-plugin]
+- [apple/swift-metrics](https://github.com/apple/swift-metrics): [Description needed for swift-metrics]
 
 ## Contributing
 
