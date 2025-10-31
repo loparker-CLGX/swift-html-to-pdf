@@ -5,103 +5,119 @@
 //  Tests for AsyncThrowingStream<PDF.Render.Result, Error> return values
 //
 
-import Testing
-import Foundation
 import Dependencies
 import DependenciesTestSupport
-import PDFTestSupport
+import Foundation
 import Metrics
+import PDFTestSupport
+import Testing
+
 @testable import HtmlToPdfLive
 
 @Suite(
-    "AsyncStream Results",
-    .serialized
+  "AsyncStream Results",
+  .serialized
 )
 struct AsyncStreamTests {
-    @Dependency(\.pdf) var pdf
+  @Dependency(\.pdf) var pdf
 
-    @Test(
-        "AsyncStream yields correct results with progressive completion",
-        .dependency(\.pdf.render.configuration.namingStrategy, .init { _ in UUID().uuidString })
-    )
-    func testAsyncStreamProgressive() async throws {
-        try await withTemporaryDirectory { output in
-            let count = 20
+  @Test(
+    "AsyncStream yields correct results with progressive completion",
+    .dependency(\.pdf.render.configuration.namingStrategy, .init { _ in UUID().uuidString })
+  )
+  func testAsyncStreamProgressive() async throws {
+    try await withTemporaryDirectory { output in
+      let count = 20
 
-            // Track URLs as stream yields them
-            var yieldedURLs: [URL] = []
+      // Track URLs as stream yields them
+      var yieldedURLs: [URL] = []
 
-            let html = [String](repeating: TestHTML.simple, count: count)
-            let stream = try await pdf.render.client.html(html, to: output)
+      let html = [String](repeating: TestHTML.simple, count: count)
+      let stream = try await pdf.render.client.html(html, to: output)
 
-            for try await result in stream {
-                yieldedURLs.append(result.url)
-                #expect(FileManager.default.fileExists(atPath: result.url.path), "Yielded URL should exist")
-            }
+      for try await result in stream {
+        yieldedURLs.append(result.url)
+        #expect(FileManager.default.fileExists(atPath: result.url.path), "Yielded URL should exist")
+      }
 
-            // Verify all results were yielded
-            #expect(yieldedURLs.count == count, "Should yield all \(count) results")
+      // Verify all results were yielded
+      #expect(yieldedURLs.count == count, "Should yield all \(count) results")
 
-            let files = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
-            #expect(files.count == count, "All files should exist after stream completes")
-        }
+      let files = try FileManager.default.contentsOfDirectory(
+        at: output,
+        includingPropertiesForKeys: nil
+      )
+      #expect(files.count == count, "All files should exist after stream completes")
     }
+  }
 
-    @Test("AsyncStream from Documents")
-    func testAsyncStreamFromDocuments() async throws {
-        try await withTemporaryDirectory { output in
-            let count = 8
+  @Test("AsyncStream from Documents")
+  func testAsyncStreamFromDocuments() async throws {
+    try await withTemporaryDirectory { output in
+      let count = 8
 
-            let documents = (1...count).map { i in
-                PDF.Document(
-                    html: TestHTML.simple,
-                    title: "doc-\(i)",
-                    in: output
-                )
-            }
+      let documents = (1...count).map { i in
+        PDF.Document(
+          html: TestHTML.simple,
+          title: "doc-\(i)",
+          in: output
+        )
+      }
 
-            let stream = try await pdf.render.client.documents(documents)
+      let stream = try await pdf.render.client.documents(documents)
 
-            var resultCount = 0
-            for try await result in stream {
-                resultCount += 1
-                #expect(FileManager.default.fileExists(atPath: result.url.path), "Yielded URL should exist")
-            }
+      var resultCount = 0
+      for try await result in stream {
+        resultCount += 1
+        #expect(FileManager.default.fileExists(atPath: result.url.path), "Yielded URL should exist")
+      }
 
-            #expect(resultCount == count, "Should yield all \(count) results")
+      #expect(resultCount == count, "Should yield all \(count) results")
 
-            let files = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
-            #expect(files.count == count, "All documents should be created")
-        }
+      let files = try FileManager.default.contentsOfDirectory(
+        at: output,
+        includingPropertiesForKeys: nil
+      )
+      #expect(files.count == count, "All documents should be created")
     }
+  }
 
-    @Test("Concurrent AsyncStreams")
-    func testConcurrentAsyncStreams() async throws {
-        try await withTemporaryDirectory { output in
-            let count = 10
+  @Test("Concurrent AsyncStreams")
+  func testConcurrentAsyncStreams() async throws {
+    try await withTemporaryDirectory { output in
+      let count = 10
 
-            try await withDependencies {
-                $0.pdf.render.configuration.namingStrategy = .init { _ in "stream1-\(UUID().uuidString)" }
-            } operation: {
-                let stream1 = try await pdf.render.client.html([String](repeating: TestHTML.simple, count: count), to: output)
+      try await withDependencies {
+        $0.pdf.render.configuration.namingStrategy = .init { _ in "stream1-\(UUID().uuidString)" }
+      } operation: {
+        let stream1 = try await pdf.render.client.html(
+          [String](repeating: TestHTML.simple, count: count),
+          to: output
+        )
 
-                for try await result in stream1 {
-                    #expect(FileManager.default.fileExists(atPath: result.url.path))
-                }
-            }
-
-            try await withDependencies {
-                $0.pdf.render.configuration.namingStrategy = .init { _ in "stream2-\(UUID().uuidString)" }
-            } operation: {
-                let stream2 = try await pdf.render.client.html([String](repeating: TestHTML.simple, count: count), to: output)
-
-                for try await result in stream2 {
-                    #expect(FileManager.default.fileExists(atPath: result.url.path))
-                }
-            }
-
-            let files = try FileManager.default.contentsOfDirectory(at: output, includingPropertiesForKeys: nil)
-            #expect(files.count == count * 2, "Both streams should complete")
+        for try await result in stream1 {
+          #expect(FileManager.default.fileExists(atPath: result.url.path))
         }
+      }
+
+      try await withDependencies {
+        $0.pdf.render.configuration.namingStrategy = .init { _ in "stream2-\(UUID().uuidString)" }
+      } operation: {
+        let stream2 = try await pdf.render.client.html(
+          [String](repeating: TestHTML.simple, count: count),
+          to: output
+        )
+
+        for try await result in stream2 {
+          #expect(FileManager.default.fileExists(atPath: result.url.path))
+        }
+      }
+
+      let files = try FileManager.default.contentsOfDirectory(
+        at: output,
+        includingPropertiesForKeys: nil
+      )
+      #expect(files.count == count * 2, "Both streams should complete")
     }
+  }
 }

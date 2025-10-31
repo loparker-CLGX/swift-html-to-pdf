@@ -5,11 +5,11 @@
 //  Created by Coen ten Thije Boonkkamp on 07/10/2025.
 //
 
-import Foundation
 import Dependencies
+import Foundation
 
 extension PDF: TestDependencyKey {
-    public static let testValue = PDF(
-        render: .testValue
-    )
+  public static let testValue = PDF(
+    render: .testValue
+  )
 }

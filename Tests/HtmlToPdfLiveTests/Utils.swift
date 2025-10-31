@@ -10,19 +10,19 @@
 
 import Foundation
 import HtmlToPdfLive
-import Testing
-import PDFTestSupport
 import Metrics
+import PDFTestSupport
+import Testing
 
 // MARK: - Test Errors
 
 enum TestError: Error {
-    case failedToCreateLogFile
-    case pdfNotFound(URL)
+  case failedToCreateLogFile
+  case pdfNotFound(URL)
 }
 
 extension String {
-    static let html = """
+  static let html = """
     <html>
         <body>
             <h1>Hello, World! Hello, World! Hello, World! Hello, World! Hello, World! Hello, World! Hello, World! Hello, World!</h1>
@@ -30,7 +30,7 @@ extension String {
     </html>
     """
 
-    static let html2 = """
+  static let html2 = """
     <html>
         <body>
             <h1>Hello, World!</h1>
@@ -67,76 +67,80 @@ extension String {
 /// Prefer MetricsProgressTracker which reads from the actual metrics being recorded.
 @available(*, deprecated, message: "Use MetricsProgressTracker instead")
 actor ProgressTracker {
-    var completed = 0
-    var lastReportedAt = Date()
-    var lastReportedCompleted = 0
-    let reportInterval: TimeInterval
-    let totalCount: Int
-    private let metricsBackend: TestMetricsBackend?
-    private let logHandler: (@Sendable (String, Logger.Metadata) -> Void)?
+  var completed = 0
+  var lastReportedAt = Date()
+  var lastReportedCompleted = 0
+  let reportInterval: TimeInterval
+  let totalCount: Int
+  private let metricsBackend: TestMetricsBackend?
+  private let logHandler: (@Sendable (String, Logger.Metadata) -> Void)?
 
-    init(
-        totalCount: Int,
-        reportInterval: TimeInterval = 5.0,
-        metricsBackend: TestMetricsBackend? = nil,
-        logHandler: (@Sendable (String, Logger.Metadata) -> Void)? = nil
-    ) {
-        self.totalCount = totalCount
-        self.reportInterval = reportInterval
-        self.metricsBackend = metricsBackend
-        self.logHandler = logHandler
-    }
+  init(
+    totalCount: Int,
+    reportInterval: TimeInterval = 5.0,
+    metricsBackend: TestMetricsBackend? = nil,
+    logHandler: (@Sendable (String, Logger.Metadata) -> Void)? = nil
+  ) {
+    self.totalCount = totalCount
+    self.reportInterval = reportInterval
+    self.metricsBackend = metricsBackend
+    self.logHandler = logHandler
+  }
 
-    func recordCompletion() async -> Int {
-        completed += 1
+  func recordCompletion() async -> Int {
+    completed += 1
 
-        // If metrics backend provided, use it for tracking
-        if let metricsBackend = metricsBackend {
-            let counter = metricsBackend.counter("htmltopdf_pdfs_generated_total")
-            let throughput = metricsBackend.gauge("htmltopdf_throughput_pdfs_per_sec")?.value ?? 0
+    // If metrics backend provided, use it for tracking
+    if let metricsBackend = metricsBackend {
+      let counter = metricsBackend.counter("htmltopdf_pdfs_generated_total")
+      let throughput = metricsBackend.gauge("htmltopdf_throughput_pdfs_per_sec")?.value ?? 0
 
-            let now = Date()
-            if now.timeIntervalSince(lastReportedAt) >= reportInterval {
-                let progress = Double(completed) / Double(totalCount) * 100
-                let metadata: Logger.Metadata = [
-                    "completed": "\(completed)",
-                    "total": "\(totalCount)",
-                    "progress_pct": "\(String(format: "%.1f", progress))",
-                    "throughput": "\(String(format: "%.0f", throughput))",  // PDFs per second
-                    "counter_total": "\(counter?.value ?? 0)"
-                ]
-                if let logHandler = logHandler {
-                    logHandler("PDF generation progress", metadata)
-                } else {
-                    print("Progress: \(completed)/\(totalCount) (\(String(format: "%.1f", progress))%) - Throughput: \(String(format: "%.0f", throughput)) PDFs/sec - Total: \(counter?.value ?? 0)")
-                }
-                lastReportedAt = now
-                lastReportedCompleted = completed
-            }
+      let now = Date()
+      if now.timeIntervalSince(lastReportedAt) >= reportInterval {
+        let progress = Double(completed) / Double(totalCount) * 100
+        let metadata: Logger.Metadata = [
+          "completed": "\(completed)",
+          "total": "\(totalCount)",
+          "progress_pct": "\(String(format: "%.1f", progress))",
+          "throughput": "\(String(format: "%.0f", throughput))",  // PDFs per second
+          "counter_total": "\(counter?.value ?? 0)",
+        ]
+        if let logHandler = logHandler {
+          logHandler("PDF generation progress", metadata)
         } else {
-            // Fallback to manual calculation
-            let now = Date()
-            if now.timeIntervalSince(lastReportedAt) >= reportInterval {
-                let interval = now.timeIntervalSince(lastReportedAt)
-                let delta = completed - lastReportedCompleted
-                let rate = Double(delta) / interval
-                let metadata: Logger.Metadata = [
-                    "completed": "\(completed)",
-                    "total": "\(totalCount)",
-                    "throughput": "\(String(format: "%.0f", rate))"  // PDFs per second
-                ]
-                if let logHandler = logHandler {
-                    logHandler("PDF generation progress", metadata)
-                } else {
-                    print("Progress: \(completed)/\(totalCount) PDFs (\(String(format: "%.1f", Double(completed)/1000.0))k) - Rate: \(String(format: "%.0f", rate)) PDFs/sec")
-                }
-                lastReportedAt = now
-                lastReportedCompleted = completed
-            }
+          print(
+            "Progress: \(completed)/\(totalCount) (\(String(format: "%.1f", progress))%) - Throughput: \(String(format: "%.0f", throughput)) PDFs/sec - Total: \(counter?.value ?? 0)"
+          )
         }
-
-        return completed
+        lastReportedAt = now
+        lastReportedCompleted = completed
+      }
+    } else {
+      // Fallback to manual calculation
+      let now = Date()
+      if now.timeIntervalSince(lastReportedAt) >= reportInterval {
+        let interval = now.timeIntervalSince(lastReportedAt)
+        let delta = completed - lastReportedCompleted
+        let rate = Double(delta) / interval
+        let metadata: Logger.Metadata = [
+          "completed": "\(completed)",
+          "total": "\(totalCount)",
+          "throughput": "\(String(format: "%.0f", rate))",  // PDFs per second
+        ]
+        if let logHandler = logHandler {
+          logHandler("PDF generation progress", metadata)
+        } else {
+          print(
+            "Progress: \(completed)/\(totalCount) PDFs (\(String(format: "%.1f", Double(completed)/1000.0))k) - Rate: \(String(format: "%.0f", rate)) PDFs/sec"
+          )
+        }
+        lastReportedAt = now
+        lastReportedCompleted = completed
+      }
     }
+
+    return completed
+  }
 }
 
 /// Metrics-based progress tracker - recommended for new tests
@@ -165,98 +169,101 @@ actor ProgressTracker {
 /// await tracker.printSummary()
 /// ```
 public actor MetricsProgressTracker {
-    private let totalCount: Int
-    private let reportInterval: Duration
-    private var displayTask: Task<Void, Never>?
-    private let startTime: Date
-    private let logHandler: (@Sendable (String, Logger.Metadata) -> Void)?
+  private let totalCount: Int
+  private let reportInterval: Duration
+  private var displayTask: Task<Void, Never>?
+  private let startTime: Date
+  private let logHandler: (@Sendable (String, Logger.Metadata) -> Void)?
 
-    public init(
-        totalCount: Int,
-        reportInterval: Duration = .seconds(5),
-        logHandler: (@Sendable (String, Logger.Metadata) -> Void)? = nil
-    ) {
-        self.totalCount = totalCount
-        self.reportInterval = reportInterval
-        self.startTime = Date()
-        self.logHandler = logHandler
-    }
+  public init(
+    totalCount: Int,
+    reportInterval: Duration = .seconds(5),
+    logHandler: (@Sendable (String, Logger.Metadata) -> Void)? = nil
+  ) {
+    self.totalCount = totalCount
+    self.reportInterval = reportInterval
+    self.startTime = Date()
+    self.logHandler = logHandler
+  }
 
-    public func start() {
-        displayTask = Task {
-            while !Task.isCancelled {
-                await printProgress()
-                try? await Task.sleep(for: reportInterval)
-            }
-        }
-    }
-
-    public func stop() {
-        displayTask?.cancel()
-        displayTask = nil
-    }
-
-    private func printProgress() async {
-        // Query metrics directly from TestMetricsBackend via MetricsSystem
-        guard let backend = MetricsSystem.factory as? TestMetricsBackend else {
-            if let logHandler = logHandler {
-                logHandler("Metrics not available - TestMetricsBackend not bootstrapped", [:])
-            }
-            return
-        }
-
-        let pdfsGenerated = Int(backend.counter("htmltopdf_pdfs_generated_total")?.value ?? 0)
-        let poolUtil = Int(backend.gauge("htmltopdf_pool_utilization")?.value ?? 0)
-
-        // Get ALL timers with this label (across all dimensions/modes) and combine their values
-        let allTimers = backend.timers(withLabel: "htmltopdf_render_duration_seconds")
-        let allDurations = allTimers.flatMap { $0.values }
-        let p95 = allDurations.isEmpty ? 0 : {
-            let sorted = allDurations.sorted()
-            let index = Int(Double(sorted.count) * 0.95)
-            let clampedIndex = min(index, sorted.count - 1)
-            return TimeInterval(sorted[clampedIndex]) / 1_000_000  // Convert nanoseconds to milliseconds
-        }()
-
-        // Calculate throughput based on elapsed time and PDFs generated
-        let elapsed = Date().timeIntervalSince(startTime)
-        let throughput = elapsed > 0 ? Double(pdfsGenerated) / elapsed : 0
-
-        let progress = Double(pdfsGenerated) / Double(totalCount) * 100
-        let eta = pdfsGenerated > 0 ? (elapsed / Double(pdfsGenerated)) * Double(totalCount - pdfsGenerated) : 0
-
-        let metadata: Logger.Metadata = [
-            "completed": "\(pdfsGenerated)",
-            "total": "\(totalCount)",
-            "progress_pct": "\(String(format: "%.1f", progress))",
-            "throughput": "\(String(format: "%.0f", throughput))",
-            "pool_utilization": "\(poolUtil)",
-            "p95_ms": "\(String(format: "%.1f", p95))",
-            "eta_seconds": "\(String(format: "%.0f", eta))"
-        ]
-
-        if let logHandler = logHandler {
-            logHandler("PDF generation progress", metadata)
-        } else {
-            print("Progress: \(pdfsGenerated)/\(totalCount) (\(String(format: "%.1f", progress))%) | " +
-                  "Throughput: \(String(format: "%.0f", throughput))/sec | " +
-                  "Pool: \(poolUtil) | " +
-                  "p95: \(String(format: "%.1f", p95))ms | " +
-                  "ETA: \(String(format: "%.0f", eta))s")
-        }
-    }
-
-    public func printSummary() async {
+  public func start() {
+    displayTask = Task {
+      while !Task.isCancelled {
         await printProgress()
-        // Get backend for detailed summary formatting
-        if let backend = MetricsSystem.factory as? TestMetricsBackend {
-            let summary = await formatMetricsSummary(backend)
-            if let logHandler = logHandler {
-                logHandler("Test summary", ["summary": "\(summary)"])
-            } else {
-                print("\n" + summary)
-            }
-        }
+        try? await Task.sleep(for: reportInterval)
+      }
     }
-}
+  }
 
+  public func stop() {
+    displayTask?.cancel()
+    displayTask = nil
+  }
+
+  private func printProgress() async {
+    // Query metrics directly from TestMetricsBackend via MetricsSystem
+    guard let backend = MetricsSystem.factory as? TestMetricsBackend else {
+      if let logHandler = logHandler {
+        logHandler("Metrics not available - TestMetricsBackend not bootstrapped", [:])
+      }
+      return
+    }
+
+    let pdfsGenerated = Int(backend.counter("htmltopdf_pdfs_generated_total")?.value ?? 0)
+    let poolUtil = Int(backend.gauge("htmltopdf_pool_utilization")?.value ?? 0)
+
+    // Get ALL timers with this label (across all dimensions/modes) and combine their values
+    let allTimers = backend.timers(withLabel: "htmltopdf_render_duration_seconds")
+    let allDurations = allTimers.flatMap { $0.values }
+    let p95 =
+      allDurations.isEmpty
+      ? 0
+      : {
+        let sorted = allDurations.sorted()
+        let index = Int(Double(sorted.count) * 0.95)
+        let clampedIndex = min(index, sorted.count - 1)
+        return TimeInterval(sorted[clampedIndex]) / 1_000_000  // Convert nanoseconds to milliseconds
+      }()
+
+    // Calculate throughput based on elapsed time and PDFs generated
+    let elapsed = Date().timeIntervalSince(startTime)
+    let throughput = elapsed > 0 ? Double(pdfsGenerated) / elapsed : 0
+
+    let progress = Double(pdfsGenerated) / Double(totalCount) * 100
+    let eta =
+      pdfsGenerated > 0 ? (elapsed / Double(pdfsGenerated)) * Double(totalCount - pdfsGenerated) : 0
+
+    let metadata: Logger.Metadata = [
+      "completed": "\(pdfsGenerated)",
+      "total": "\(totalCount)",
+      "progress_pct": "\(String(format: "%.1f", progress))",
+      "throughput": "\(String(format: "%.0f", throughput))",
+      "pool_utilization": "\(poolUtil)",
+      "p95_ms": "\(String(format: "%.1f", p95))",
+      "eta_seconds": "\(String(format: "%.0f", eta))",
+    ]
+
+    if let logHandler = logHandler {
+      logHandler("PDF generation progress", metadata)
+    } else {
+      print(
+        "Progress: \(pdfsGenerated)/\(totalCount) (\(String(format: "%.1f", progress))%) | "
+          + "Throughput: \(String(format: "%.0f", throughput))/sec | " + "Pool: \(poolUtil) | "
+          + "p95: \(String(format: "%.1f", p95))ms | " + "ETA: \(String(format: "%.0f", eta))s"
+      )
+    }
+  }
+
+  public func printSummary() async {
+    await printProgress()
+    // Get backend for detailed summary formatting
+    if let backend = MetricsSystem.factory as? TestMetricsBackend {
+      let summary = await formatMetricsSummary(backend)
+      if let logHandler = logHandler {
+        logHandler("Test summary", ["summary": "\(summary)"])
+      } else {
+        print("\n" + summary)
+      }
+    }
+  }
+}

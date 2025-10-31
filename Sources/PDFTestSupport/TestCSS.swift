@@ -9,8 +9,8 @@ import Foundation
 
 /// Common CSS styles for visual verification tests
 public enum TestCSS {
-    /// Modern document styling with gradients, sections, and responsive layout
-    public static let modern = """
+  /// Modern document styling with gradients, sections, and responsive layout
+  public static let modern = """
     body {
         font-family: 'Helvetica Neue', Arial, sans-serif;
         padding: 30px;
@@ -66,8 +66,8 @@ public enum TestCSS {
     }
     """
 
-    /// Rich verification CSS with tables, grids, and complex layouts
-    public static let richVerification = """
+  /// Rich verification CSS with tables, grids, and complex layouts
+  public static let richVerification = """
     body {
         font-family: 'Helvetica Neue', Arial, sans-serif;
         line-height: 1.6;

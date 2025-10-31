@@ -12,11 +12,11 @@ import Foundation
 /// Provides consistent HTML test data across test suites, reducing duplication
 /// and ensuring tests use well-formed, predictable content.
 public enum TestHTML {
-    /// Minimal valid HTML document
-    public static let minimal = "<html><body></body></html>"
+  /// Minimal valid HTML document
+  public static let minimal = "<html><body></body></html>"
 
-    /// Simple single-page content with heading and paragraph
-    public static let simple = """
+  /// Simple single-page content with heading and paragraph
+  public static let simple = """
     <html>
         <head><meta charset="UTF-8"></head>
         <body>
@@ -26,44 +26,44 @@ public enum TestHTML {
     </html>
     """
 
-    /// Generate HTML with multiple items for pagination testing
-    ///
-    /// Creates a document with the specified number of styled items,
-    /// useful for testing multi-page rendering and pagination behavior.
-    ///
-    /// - Parameter count: Number of items to generate
-    /// - Returns: HTML string with styled item divs
-    public static func items(_ count: Int) -> String {
-        let items = (1...count).map { i in
-            """
-            <div style="padding: 15px; margin: 10px 0; background: #f5f5f5; border-radius: 4px;">
-                <h3>Item \(i)</h3>
-                <p>Test content for item number \(i). This text helps verify that content flows correctly across pages.</p>
-            </div>
-            """
-        }.joined(separator: "\n")
+  /// Generate HTML with multiple items for pagination testing
+  ///
+  /// Creates a document with the specified number of styled items,
+  /// useful for testing multi-page rendering and pagination behavior.
+  ///
+  /// - Parameter count: Number of items to generate
+  /// - Returns: HTML string with styled item divs
+  public static func items(_ count: Int) -> String {
+    let items = (1...count).map { i in
+      """
+      <div style="padding: 15px; margin: 10px 0; background: #f5f5f5; border-radius: 4px;">
+          <h3>Item \(i)</h3>
+          <p>Test content for item number \(i). This text helps verify that content flows correctly across pages.</p>
+      </div>
+      """
+    }.joined(separator: "\n")
 
-        return """
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <style>
-                    body {
-                        font-family: Arial, sans-serif;
-                        line-height: 1.6;
-                        margin: 20px;
-                    }
-                </style>
-            </head>
-            <body>
-                \(items)
-            </body>
-        </html>
-        """
-    }
+    return """
+      <html>
+          <head>
+              <meta charset="UTF-8">
+              <style>
+                  body {
+                      font-family: Arial, sans-serif;
+                      line-height: 1.6;
+                      margin: 20px;
+                  }
+              </style>
+          </head>
+          <body>
+              \(items)
+          </body>
+      </html>
+      """
+  }
 
-    /// Rich formatting test with CSS, gradients, and tables
-    public static let richFormatting = """
+  /// Rich formatting test with CSS, gradients, and tables
+  public static let richFormatting = """
     <html>
         <head>
             <meta charset="UTF-8">
@@ -109,8 +109,8 @@ public enum TestHTML {
     </html>
     """
 
-    /// Unicode and emoji test content
-    public static let unicode = """
+  /// Unicode and emoji test content
+  public static let unicode = """
     <html>
         <head><meta charset="UTF-8"></head>
         <body>
@@ -123,29 +123,29 @@ public enum TestHTML {
     </html>
     """
 
-    /// Build custom HTML with title, body content, and optional CSS
-    ///
-    /// - Parameters:
-    ///   - title: Document title (default: "Test Document")
-    ///   - body: HTML body content
-    ///   - css: Optional CSS styles
-    /// - Returns: Complete HTML document string
-    public static func custom(
-        title: String = "Test Document",
-        body: String,
-        css: String = ""
-    ) -> String {
-        """
-        <html>
-            <head>
-                <meta charset="UTF-8">
-                <title>\(title)</title>
-                <style>\(css)</style>
-            </head>
-            <body>
-                \(body)
-            </body>
-        </html>
-        """
-    }
+  /// Build custom HTML with title, body content, and optional CSS
+  ///
+  /// - Parameters:
+  ///   - title: Document title (default: "Test Document")
+  ///   - body: HTML body content
+  ///   - css: Optional CSS styles
+  /// - Returns: Complete HTML document string
+  public static func custom(
+    title: String = "Test Document",
+    body: String,
+    css: String = ""
+  ) -> String {
+    """
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>\(title)</title>
+            <style>\(css)</style>
+        </head>
+        <body>
+            \(body)
+        </body>
+    </html>
+    """
+  }
 }

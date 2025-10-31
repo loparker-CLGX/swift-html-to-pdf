@@ -9,9 +9,9 @@ import Dependencies
 import Foundation
 
 #if HTML
-import HTML
+  import HTML
 
-extension PDF {
+  extension PDF {
 
     // MARK: - HTML Protocol Integration
 
@@ -42,11 +42,11 @@ extension PDF {
     /// - Returns: URL of the generated PDF
     /// - Throws: Rendering errors
     public func render(
-        html: some HTML,
-        to destination: URL
+      html: some HTML,
+      to destination: URL
     ) async throws -> URL {
-        let document = PDF.Document(html: html, destination: destination)
-        return try await render.document(document)
+      let document = PDF.Document(html: html, destination: destination)
+      return try await render.document(document)
     }
 
     /// Render type-safe HTML to PDF data (in-memory)
@@ -64,11 +64,11 @@ extension PDF {
     /// - Returns: PDF data
     /// - Throws: Rendering errors
     public func render(
-        html: some HTML
+      html: some HTML
     ) async throws -> Data {
-        let html = String(decoding: html.render(), as: UTF8.self)
-        return try await render.data(for: html)
+      let html = String(decoding: html.render(), as: UTF8.self)
+      return try await render.data(for: html)
     }
 
-}
+  }
 #endif

@@ -60,16 +60,15 @@ import Foundation
 /// )
 /// ```
 public struct PDF: Sendable {
-    /// Rendering capability containing client and configuration
-    public var render: Render
+  /// Rendering capability containing client and configuration
+  public var render: Render
 
-    public init(
-        render: Render
-    ) {
-        self.render = render
-    }
+  public init(
+    render: Render
+  ) {
+    self.render = render
+  }
 }
 
 // MARK: - Dependency Registration
 // DependencyKey conformances and DependencyValues extension are in HtmlToPdfLive target
-

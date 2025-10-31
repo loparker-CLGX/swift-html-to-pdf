@@ -8,9 +8,9 @@
 import HtmlToPdfLive
 
 #if HTML
-import HTML
+  import HTML
 
-extension PDF.Document {
+  extension PDF.Document {
     /// Create a document from any HTML-conforming type (swift-html integration)
     ///
     /// This initializer provides seamless integration with swift-html and PointFreeHTML.
@@ -32,7 +32,7 @@ extension PDF.Document {
     /// try await PDF.render.client.render(doc)
     /// ```
     public init(html: some HTML, destination: URL) {
-        self.init(html: html.render(), destination: destination)
+      self.init(html: html.render(), destination: destination)
     }
 
     /// Create a document from HTML with a title-based filename
@@ -47,7 +47,7 @@ extension PDF.Document {
     /// // Saves to: outputDir/Q4 Report.pdf
     /// ```
     public init(html: some HTML, title: String, in directory: URL) {
-        self.init(html: html.render(), title: title, in: directory)
+      self.init(html: html.render(), title: title, in: directory)
     }
-}
+  }
 #endif
