@@ -3,7 +3,7 @@
 [![CI](https://github.com/coenttb/swift-html-to-pdf/workflows/CI/badge.svg)](https://github.com/coenttb/swift-html-to-pdf/actions/workflows/ci.yml)
 ![Development Status](https://img.shields.io/badge/status-active--development-blue.svg)
 
-A high-performance Swift library for converting HTML to PDF on Apple platforms using WKWebView.
+Convert HTML to PDF on Apple platforms using WKWebView. Processes 1,939 PDFs/sec continuous mode with 35 MB steady-state memory. Swift 6 strict concurrency with actor-based resource pooling.
 
 ## Table of Contents
 
@@ -17,6 +17,7 @@ A high-performance Swift library for converting HTML to PDF on Apple platforms u
 - [Monitoring](#monitoring)
 - [Documentation](#documentation)
 - [Testing](#testing)
+- [Test Support](#test-support)
 - [Platform Support](#platform-support)
 - [Related Packages](#related-packages)
 - [Contributing](#contributing)
@@ -281,6 +282,39 @@ swift test --filter WebViewMemoryTests
 swift test --filter StressTests
 ```
 
+## Test Support
+
+The `PDFTestSupport` module provides test utilities for applications using swift-html-to-pdf:
+
+```swift
+dependencies: [
+    .product(name: "PDFTestSupport", package: "swift-html-to-pdf")
+]
+```
+
+Features:
+- HTML test fixtures (minimal, simple, rich formatting, unicode)
+- Temporary directory management with automatic cleanup
+- Metrics testing backends
+- PDF output verification helpers
+- Platform-specific test renderers
+
+Example usage:
+
+```swift
+import PDFTestSupport
+import Testing
+
+@Test func generateTestPDF() async throws {
+    try await withTemporaryDirectory { dir in
+        let html = TestHTML.richFormatting
+        try await pdf.render(html: html, to: dir.appendingPathComponent("test.pdf"))
+    }
+}
+```
+
+See test files for additional examples.
+
 ## Platform Support
 
 | Platform    | Status           | Notes                                      |
@@ -300,15 +334,12 @@ swift test --filter StressTests
 
 ### Used By
 
-- [pointfree-html-to-pdf](https://github.com/coenttb/pointfree-html-to-pdf): A Swift package integrating pointfree-html with swift-html-to-pdf.
 - [swift-document-templates](https://github.com/coenttb/swift-document-templates): A Swift package for data-driven business document creation.
-- [swift-folder](https://github.com/coenttb/swift-folder): A Swift package for creating folder structures and documents with declarative syntax.
 
 ### Third-Party Dependencies
 
 - [pointfreeco/swift-dependencies](https://github.com/pointfreeco/swift-dependencies): A dependency management library for controlling dependencies in Swift.
-- [apple/swift-docc-plugin](https://github.com/apple/swift-docc-plugin): [Description needed for swift-docc-plugin]
-- [apple/swift-metrics](https://github.com/apple/swift-metrics): [Description needed for swift-metrics]
+- [apple/swift-metrics](https://github.com/apple/swift-metrics): A Metrics API package for Swift.
 
 ## Contributing
 
