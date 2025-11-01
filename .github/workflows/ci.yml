@@ -64,6 +64,23 @@ jobs:
           export WEBVIEW_POOL_SILENT=1
           swift test -c ${{ matrix.config }} --skip "Performance|Stress Tests|WebView Memory"
 
+  linux-swift62:
+    name: Ubuntu (Swift 6.2)
+    runs-on: ubuntu-latest
+    container: swift:6.2
+    steps:
+      - uses: actions/checkout@v5
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+          restore-keys: ${{ runner.os }}-spm-
+      - name: Build
+        run: swift build
+      - name: Run tests
+        run: swift test
+
   readme-validation:
     name: README Code Examples
     runs-on: macos-26
