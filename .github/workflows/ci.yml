@@ -109,3 +109,28 @@ jobs:
         run: |
           export WEBVIEW_POOL_SILENT=1
           swift test -c release --skip "Performance|Stress Tests|WebView Memory"
+
+  # Compatibility check: Swift 6.1 on macOS
+  macos-swift61:
+    name: macOS (Swift 6.1, compatibility)
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select Xcode 16.1
+        run: sudo xcode-select -s /Applications/Xcode_16.1.app
+
+      - name: Print Swift version
+        run: swift --version
+
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-swift61-spm-v1-${{ hashFiles('Package.swift') }}
+          restore-keys: ${{ runner.os }}-swift61-spm-v1-
+
+      - name: Test (Swift 6.1)
+        run: |
+          export WEBVIEW_POOL_SILENT=1
+          swift test -c release --skip "Performance|Stress Tests|WebView Memory"
