@@ -17,6 +17,7 @@ disabled_rules:
   - large_tuple  # Sometimes necessary for complex operations
   - type_name  # Allow iOS-prefixed types like iOSPrintFormatterRenderer
   - nesting  # Allow deeply nested enums for namespacing
+  - non_optional_string_data_conversion  # HTML bytes are guaranteed UTF-8 by library design (PDF.Document enforces UTF-8 at construction)
 
 # Enabled Opt-In Rules (helpful additions)
 opt_in_rules:

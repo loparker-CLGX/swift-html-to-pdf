@@ -240,7 +240,7 @@
                         metrics.recordCSSInjectionTime(cssTime)
                         metrics.recordDataConversionTime(dataTime)
 
-                        await MainActor.run {
+                        let _ = await MainActor.run {
                             webView.load(
                                 htmlData,
                                 mimeType: "text/html",
