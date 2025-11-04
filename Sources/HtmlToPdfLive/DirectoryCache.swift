@@ -19,25 +19,17 @@ import IssueReporting
 final class DirectoryCache: Sendable {
   private let validated = LockIsolated(Set<String>())
 
-  func ensureDirectory(
-    at url: URL,
-    createIfNeeded: Bool
-  ) throws {
+  func ensureDirectory(at url: URL, createIfNeeded: Bool) throws {
     let path = url.path
 
     // Fast path: check cache with lock
     let isValidated = validated.withValue { $0.contains(path) }
 
-    if isValidated {
-      return
-    }
+    if isValidated { return }
 
     // Slow path: check and possibly create (file I/O)
     if createIfNeeded {
-      try FileManager.default.createDirectory(
-        at: url,
-        withIntermediateDirectories: true
-      )
+      try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
       _ = validated.withValue { $0.insert(path) }
     } else {
       // Validate directory exists when createDirectories is false
@@ -58,9 +50,7 @@ final class DirectoryCache: Sendable {
     }
   }
 
-  func clear() {
-    validated.withValue { $0.removeAll() }
-  }
+  func clear() { validated.withValue { $0.removeAll() } }
 }
 
 /// Shared directory cache for the rendering session

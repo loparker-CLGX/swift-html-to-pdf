@@ -12,23 +12,15 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Convenience API Levels",
-  .serialized
-)
-struct ConvenienceTests {
+@Suite("Convenience API Levels", .serialized) struct ConvenienceTests {
   @Dependency(\.pdf) var pdf
 
-  @Test("Level 1: Top-level convenience (shortest)")
-  func testTopLevelConvenience() async throws {
+  @Test("Level 1: Top-level convenience (shortest)") func testTopLevelConvenience() async throws {
 
     let html = "<html><body><h1>Level 1: Top-level</h1></body></html>"
-    let output = URL.temporaryDirectory
-      .appendingPathComponent("level1-\(UUID().uuidString).pdf")
+    let output = URL.temporaryDirectory.appendingPathComponent("level1-\(UUID().uuidString).pdf")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     // Shortest form - forwards through PDF -> Render -> Client
     let result = try await pdf.render(html: html, to: output)
@@ -39,16 +31,14 @@ struct ConvenienceTests {
     )
   }
 
-  @Test("Level 2: Capability-level convenience (mid-level)")
-  func testCapabilityLevelConvenience() async throws {
+  @Test("Level 2: Capability-level convenience (mid-level)") func testCapabilityLevelConvenience()
+    async throws
+  {
 
     let html = "<html><body><h1>Level 2: Capability</h1></body></html>"
-    let output = URL.temporaryDirectory
-      .appendingPathComponent("level2-\(UUID().uuidString).pdf")
+    let output = URL.temporaryDirectory.appendingPathComponent("level2-\(UUID().uuidString).pdf")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     // Mid-level - shows capability structure, forwards to client
     let result = try await pdf.render.html(html, to: output)
@@ -59,16 +49,14 @@ struct ConvenienceTests {
     )
   }
 
-  @Test("Level 3: Explicit client access (full control)")
-  func testExplicitClientAccess() async throws {
+  @Test("Level 3: Explicit client access (full control)") func testExplicitClientAccess()
+    async throws
+  {
 
     let html = "<html><body><h1>Level 3: Explicit</h1></body></html>"
-    let output = URL.temporaryDirectory
-      .appendingPathComponent("level3-\(UUID().uuidString).pdf")
+    let output = URL.temporaryDirectory.appendingPathComponent("level3-\(UUID().uuidString).pdf")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     // Explicit form - direct client access
     let result = try await pdf.render.client.html(html, to: output)
@@ -79,20 +67,15 @@ struct ConvenienceTests {
     )
   }
 
-  @Test("HTML batch convenience levels")
-  func testHTMLBatchConvenienceLevels() async throws {
+  @Test("HTML batch convenience levels") func testHTMLBatchConvenienceLevels() async throws {
 
     let html = [
-      "<html><body><h1>Doc 1</h1></body></html>",
-      "<html><body><h1>Doc 2</h1></body></html>",
+      "<html><body><h1>Doc 1</h1></body></html>", "<html><body><h1>Doc 2</h1></body></html>",
       "<html><body><h1>Doc 3</h1></body></html>",
     ]
-    let output = URL.temporaryDirectory
-      .appendingPathComponent("batch-\(UUID().uuidString)")
+    let output = URL.temporaryDirectory.appendingPathComponent("batch-\(UUID().uuidString)")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     // Level 2: Capability-level
     var urls2: [URL] = []
@@ -112,8 +95,7 @@ struct ConvenienceTests {
     #expect(urls3.count == 3, "Explicit client htmls should work")
   }
 
-  @Test("Data rendering convenience levels")
-  func testDataRenderingLevels() async throws {
+  @Test("Data rendering convenience levels") func testDataRenderingLevels() async throws {
 
     let html = "<html><body><h1>In-memory PDF</h1></body></html>"
 
@@ -130,15 +112,11 @@ struct ConvenienceTests {
     #expect(data3.count > 1000, "Explicit client data should work")
   }
 
-  @Test("Document convenience levels")
-  func testDocumentConvenienceLevels() async throws {
+  @Test("Document convenience levels") func testDocumentConvenienceLevels() async throws {
 
-    let output = URL.temporaryDirectory
-      .appendingPathComponent("docs-\(UUID().uuidString)")
+    let output = URL.temporaryDirectory.appendingPathComponent("docs-\(UUID().uuidString)")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     let document = PDF.Document(html: "<html><body>Test</body></html>", title: "test", in: output)
 
@@ -166,9 +144,7 @@ struct ConvenienceTests {
     ]
 
     var count = 0
-    for try await _ in try await pdf.render(documents: documents) {
-      count += 1
-    }
+    for try await _ in try await pdf.render(documents: documents) { count += 1 }
     #expect(count == 2, "Client-level batch documents should work")
   }
 }

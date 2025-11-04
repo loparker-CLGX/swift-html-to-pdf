@@ -13,8 +13,7 @@
   import LoggingExtras
 
   /// WKWebView wrapper that conforms to PoolableResource
-  @MainActor
-  package final class WKWebViewResource: PoolableResource {
+  @MainActor package final class WKWebViewResource: PoolableResource {
     package struct Config: Sendable {
       package var maxUsesBeforeRecreate: Int
       package var clearCachesEvery: Int  // 0 = disabled
@@ -39,8 +38,7 @@
     }
 
     /// Create a new WKWebView resource
-    @MainActor
-    package static func create(config: Config) async throws -> WKWebViewResource {
+    @MainActor package static func create(config: Config) async throws -> WKWebViewResource {
       let webViewConfig = WKWebViewConfiguration()
 
       // Note: WKProcessPool is deprecated as of macOS 12.0+
@@ -97,12 +95,9 @@
     }
 
     /// Validate that the resource is still usable
-    @MainActor
-    package func validate() async -> Bool {
+    @MainActor package func validate() async -> Bool {
       // Check if we've exceeded max uses - proactive recycling
-      if uses >= config.maxUsesBeforeRecreate {
-        return false
-      }
+      if uses >= config.maxUsesBeforeRecreate { return false }
 
       // Check if WebView is still responsive (simple check, no timeout needed)
       // Timeout wrapper causes Swift 6 concurrency issues, and WebKit is reliable
@@ -114,19 +109,14 @@
         @Dependency(\.logger) var logger
         logger.warning(
           "WebView validation failed, will be replaced",
-          metadata: [
-            "error": "\(error)",
-            "error_type": "\(type(of: error))",
-            "uses": "\(uses)",
-          ]
+          metadata: ["error": "\(error)", "error_type": "\(type(of: error))", "uses": "\(uses)"]
         )
         return false
       }
     }
 
     /// Reset the resource for reuse
-    @MainActor
-    package func reset() async throws {
+    @MainActor package func reset() async throws {
       uses += 1
 
       // Stop any ongoing loads
@@ -138,10 +128,7 @@
       // Periodic cache clearing: Clear caches every N uses to prevent buildup
       // This is cheaper than clearing on every use (15% overhead) but prevents accumulation
       if config.clearCachesEvery > 0, uses % config.clearCachesEvery == 0 {
-        let dataTypes: Set<String> = [
-          WKWebsiteDataTypeDiskCache,
-          WKWebsiteDataTypeMemoryCache,
-        ]
+        let dataTypes: Set<String> = [WKWebsiteDataTypeDiskCache, WKWebsiteDataTypeMemoryCache]
         await webView.configuration.websiteDataStore.removeData(
           ofTypes: dataTypes,
           modifiedSince: .distantPast

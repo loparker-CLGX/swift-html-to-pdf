@@ -12,11 +12,9 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite("Metrics Tests", .dependency(\.pdf.render.metrics, .recording))
-struct MetricsTests {
+@Suite("Metrics Tests", .dependency(\.pdf.render.metrics, .recording)) struct MetricsTests {
 
-  @Test("Metrics are available via dependency")
-  func metricsAvailableViaDependency() {
+  @Test("Metrics are available via dependency") func metricsAvailableViaDependency() {
     @Dependency(\.pdf.render.metrics) var metrics
     @Dependency(\.metricsStorage) var storage
 
@@ -37,8 +35,7 @@ struct MetricsTests {
     #expect(storage.currentThroughput == 1000.0)
   }
 
-  @Test("Metrics record actual values")
-  func metricsRecordActualValues() {
+  @Test("Metrics record actual values") func metricsRecordActualValues() {
     @Dependency(\.pdf.render.metrics) var metrics
     @Dependency(\.metricsStorage) var storage
 
@@ -59,8 +56,7 @@ struct MetricsTests {
     #expect(storage.currentThroughput == 1500.0)
   }
 
-  @Test("Metrics p95 calculation")
-  func metricsP95Calculation() {
+  @Test("Metrics p95 calculation") func metricsP95Calculation() {
     @Dependency(\.pdf.render.metrics) var metrics
     @Dependency(\.metricsStorage) var storage
 

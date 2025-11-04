@@ -96,22 +96,16 @@ extension PDF.Render {
 
     // MARK: - Initialization
 
-    private init(mode: Mode) {
-      self.mode = mode
-    }
+    private init(mode: Mode) { self.mode = mode }
 
     // MARK: - ExpressibleByIntegerLiteral
 
-    public init(integerLiteral value: Int) {
-      self.mode = .fixed(value)
-    }
+    public init(integerLiteral value: Int) { self.mode = .fixed(value) }
 
     // MARK: - Static Constructors
 
     /// Fixed concurrency - use exact number of concurrent operations
-    public static func fixed(_ value: Int) -> Self {
-      Self(mode: .fixed(value))
-    }
+    public static func fixed(_ value: Int) -> Self { Self(mode: .fixed(value)) }
 
     /// Automatic concurrency - calculate optimal value based on CPU count and available memory
     public static let automatic = Self(mode: .automatic)
@@ -154,10 +148,8 @@ extension PDF.Render {
     /// Resolve to concrete concurrency value
     public var resolved: Int {
       switch mode {
-      case .fixed(let value):
-        return max(1, value)
-      case .automatic:
-        return Self.calculateDefaultConcurrency()
+      case .fixed(let value): return max(1, value)
+      case .automatic: return Self.calculateDefaultConcurrency()
       }
     }
   }

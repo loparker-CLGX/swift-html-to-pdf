@@ -10,11 +10,9 @@ import Testing
 
 @testable import HtmlToPdf
 
-@Suite("Deprecated API Compatibility")
-struct DeprecatedAPITest {
+@Suite("Deprecated API Compatibility") struct DeprecatedAPITest {
 
-  @Test("String.print(to:) works with deprecation warning")
-  func stringPrintToURL() async throws {
+  @Test("String.print(to:) works with deprecation warning") func stringPrintToURL() async throws {
     let html = "<html><body><h1>Test</h1></body></html>"
     let tempDir = FileManager.default.temporaryDirectory
     let testFile = tempDir.appendingPathComponent("deprecated-test-\(UUID()).pdf")
@@ -28,8 +26,9 @@ struct DeprecatedAPITest {
     try? FileManager.default.removeItem(at: testFile)
   }
 
-  @Test("String.print(title:to:) works with deprecation warning")
-  func stringPrintWithTitle() async throws {
+  @Test("String.print(title:to:) works with deprecation warning") func stringPrintWithTitle()
+    async throws
+  {
     let html = "<html><body><h1>Test</h1></body></html>"
     let tempDir = FileManager.default.temporaryDirectory
 
@@ -43,15 +42,14 @@ struct DeprecatedAPITest {
     try? FileManager.default.removeItem(at: expectedFile)
   }
 
-  @Test("Sequence.print works with deprecation warning")
-  func sequencePrint() async throws {
+  @Test("Sequence.print works with deprecation warning") func sequencePrint() async throws {
     let html = [
-      "<html><body><h1>Page 1</h1></body></html>",
-      "<html><body><h1>Page 2</h1></body></html>",
+      "<html><body><h1>Page 1</h1></body></html>", "<html><body><h1>Page 2</h1></body></html>",
     ]
 
-    let tempDir = FileManager.default.temporaryDirectory
-      .appendingPathComponent("deprecated-batch-\(UUID())")
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(
+      "deprecated-batch-\(UUID())"
+    )
 
     // This should compile with a deprecation warning but still work
     try await html.print(to: tempDir)
@@ -67,8 +65,7 @@ struct DeprecatedAPITest {
     try? FileManager.default.removeItem(at: tempDir)
   }
 
-  @Test("Old configuration types work")
-  func oldConfigurationTypes() async throws {
+  @Test("Old configuration types work") func oldConfigurationTypes() async throws {
     // PDFConfiguration type alias should work
     let _: PDFConfiguration = .a4
 
@@ -76,11 +73,9 @@ struct DeprecatedAPITest {
     let _: PrintingConfiguration = .default
 
     // Document type alias should work
-    let tempFile = FileManager.default.temporaryDirectory
-      .appendingPathComponent("doc-test-\(UUID()).pdf")
-    let _: Document = OldDocument(
-      fileUrl: tempFile,
-      html: "<html><body>Test</body></html>"
+    let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent(
+      "doc-test-\(UUID()).pdf"
     )
+    let _: Document = OldDocument(fileUrl: tempFile, html: "<html><body>Test</body></html>")
   }
 }

@@ -23,13 +23,9 @@ import Foundation
   /// - Returns: A loaded PDFDocument ready for inspection
   /// - Throws: TestError if the file doesn't exist or cannot be loaded as a PDF
   public func verifyPDFExists(at url: URL) throws -> PDFDocument {
-    guard FileManager.default.fileExists(atPath: url.path) else {
-      throw TestError.pdfNotFound(url)
-    }
+    guard FileManager.default.fileExists(atPath: url.path) else { throw TestError.pdfNotFound(url) }
 
-    guard let doc = PDFDocument(url: url) else {
-      throw TestError.cannotLoadPDF(url)
-    }
+    guard let doc = PDFDocument(url: url) else { throw TestError.cannotLoadPDF(url) }
 
     return doc
   }
@@ -41,10 +37,8 @@ import Foundation
 
     public var description: String {
       switch self {
-      case .pdfNotFound(let url):
-        return "PDF not found at: \(url.path)"
-      case .cannotLoadPDF(let url):
-        return "Cannot load PDF at: \(url.path)"
+      case .pdfNotFound(let url): return "PDF not found at: \(url.path)"
+      case .cannotLoadPDF(let url): return "Cannot load PDF at: \(url.path)"
       }
     }
   }

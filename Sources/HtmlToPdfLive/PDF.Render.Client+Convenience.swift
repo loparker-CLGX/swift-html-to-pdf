@@ -19,16 +19,10 @@ extension PDF.Render.Client {
   /// - Parameter document: Document to render
   /// - Returns: URL of the generated PDF
   /// - Throws: Rendering errors
-  public func document(
-    _ document: PDF.Document
-  ) async throws -> URL {
+  public func document(_ document: PDF.Document) async throws -> URL {
     var result: URL?
-    for try await r in try await documents([document]) {
-      result = r.url
-    }
-    guard let url = result else {
-      throw PrintingError.noResultProduced
-    }
+    for try await r in try await documents([document]) { result = r.url }
+    guard let url = result else { throw PrintingError.noResultProduced }
     return url
   }
 
@@ -41,10 +35,7 @@ extension PDF.Render.Client {
   ///   - destination: File URL for the PDF
   /// - Returns: URL of the generated PDF (same as destination)
   /// - Throws: Rendering errors
-  public func html(
-    _ html: String,
-    to destination: URL
-  ) async throws -> URL {
+  public func html(_ html: String, to destination: URL) async throws -> URL {
     let doc = PDF.Document(html: html, destination: destination)
     return try await document(doc)
   }
@@ -85,33 +76,23 @@ extension PDF.Render.Client {
   /// - Parameter html: HTML strings to render (any sequence)
   /// - Returns: Stream of PDF data as each completes
   /// - Throws: Rendering errors
-  public func data(
-    for html: some Sequence<String>
-  ) async throws -> AsyncThrowingStream<Data, Error> {
-    let tempDir = URL.temporaryDirectory
-      .appendingPathComponent(UUID().uuidString)
+  public func data(for html: some Sequence<String>) async throws -> AsyncThrowingStream<Data, Error>
+  {
+    let tempDir = URL.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 
     // Materialize sequence and create documents before Task to avoid Sendable issues
     let documents = html.enumerated().map { index, html in
-      PDF.Document(
-        html: html,
-        destination: tempDir.appendingPathComponent("\(index).pdf")
-      )
+      PDF.Document(html: html, destination: tempDir.appendingPathComponent("\(index).pdf"))
     }
 
     return AsyncThrowingStream { continuation in
       Task {
         do {
           // Ensure cleanup happens on both success and error paths
-          defer {
-            try? FileManager.default.removeItem(at: tempDir)
-          }
+          defer { try? FileManager.default.removeItem(at: tempDir) }
 
           // Create temp directory
-          try FileManager.default.createDirectory(
-            at: tempDir,
-            withIntermediateDirectories: true
-          )
+          try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
 
           // Render and stream back Data
           for try await result in try await self.documents(documents) {
@@ -120,9 +101,7 @@ extension PDF.Render.Client {
           }
 
           continuation.finish()
-        } catch {
-          continuation.finish(throwing: error)
-        }
+        } catch { continuation.finish(throwing: error) }
       }
     }
   }
@@ -134,12 +113,8 @@ extension PDF.Render.Client {
   /// - Parameter html: HTML content to render
   /// - Returns: PDF data
   /// - Throws: Rendering errors
-  public func data(
-    for html: String
-  ) async throws -> Data {
-    for try await data in try await self.data(for: [html]) {
-      return data
-    }
+  public func data(for html: String) async throws -> Data {
+    for try await data in try await self.data(for: [html]) { return data }
     throw PrintingError.noResultProduced
   }
 }

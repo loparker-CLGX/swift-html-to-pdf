@@ -14,13 +14,11 @@ import Testing
 #if HTML
   import HTML
 
-  @Suite("HTML DSL Examples")
-  struct HTMLDSLExamplesTests {
+  @Suite("HTML DSL Examples") struct HTMLDSLExamplesTests {
 
     // MARK: - Simple Invoice Example
 
-    @Test("Simple Invoice HTML DSL renders to PDF")
-    func simpleInvoiceExample() async throws {
+    @Test("Simple Invoice HTML DSL renders to PDF") func simpleInvoiceExample() async throws {
       @Dependency(\.pdf) var pdf
 
       let invoiceHTML = HTMLDocument {
@@ -40,13 +38,11 @@ import Testing
     }
 
     // MARK: - Invoice with Styling
-    @Test("Invoice with CSS styling renders")
-    func styledInvoiceExample() async throws {
+    @Test("Invoice with CSS styling renders") func styledInvoiceExample() async throws {
       @Dependency(\.pdf) var pdf
 
       let invoiceHTML = HTMLDocument {
-        h1 { "Invoice #1234" }
-          .color(.hex("#333"))
+        h1 { "Invoice #1234" }.color(.hex("#333"))
         p { "Thank you for your business!" }
         p { "Total: $99.99" }
       } head: {

@@ -53,57 +53,48 @@ extension PDF.Render {
   /// **Gauges:**
   /// - `htmltopdf_pool_utilization`: Current WebViews in pool
   /// - `htmltopdf_throughput_pdfs_per_sec`: Current throughput
-  @DependencyClient
-  public struct Metrics: @unchecked Sendable {
+  @DependencyClient public struct Metrics: @unchecked Sendable {
 
     // MARK: - Counter Operations
 
     /// Increment PDFs generated counter
-    @DependencyEndpoint
-    public var incrementPDFsGenerated: @Sendable () -> Void
+    @DependencyEndpoint public var incrementPDFsGenerated: @Sendable () -> Void
 
     /// Increment PDFs failed counter
-    @DependencyEndpoint
-    public var incrementPDFsFailed: @Sendable () -> Void
+    @DependencyEndpoint public var incrementPDFsFailed: @Sendable () -> Void
 
     /// Increment pool replacements counter
-    @DependencyEndpoint
-    public var incrementPoolReplacements: @Sendable () -> Void
+    @DependencyEndpoint public var incrementPoolReplacements: @Sendable () -> Void
 
     // MARK: - Timer Operations
 
     /// Record render duration
-    @DependencyEndpoint
-    public var recordRenderDuration:
+    @DependencyEndpoint public var recordRenderDuration:
       @Sendable (_ duration: Duration, _ mode: PDF.PaginationMode?) -> Void
 
     // MARK: - Gauge Operations
 
     /// Update pool utilization gauge
-    @DependencyEndpoint
-    public var updatePoolUtilization: @Sendable (_ count: Int) -> Void
+    @DependencyEndpoint public var updatePoolUtilization: @Sendable (_ count: Int) -> Void
 
     /// Update throughput gauge
-    @DependencyEndpoint
-    public var updateThroughput: @Sendable (_ pdfsPerSecond: Double) -> Void
+    @DependencyEndpoint public var updateThroughput: @Sendable (_ pdfsPerSecond: Double) -> Void
 
     // MARK: - Detailed Timing Operations
 
     /// Record pool acquisition time
-    @DependencyEndpoint
-    public var recordPoolAcquisitionTime: @Sendable (_ duration: Duration) -> Void
+    @DependencyEndpoint public var recordPoolAcquisitionTime:
+      @Sendable (_ duration: Duration) -> Void
 
     /// Record WebView render time (total time in WebView including all operations)
-    @DependencyEndpoint
-    public var recordWebViewRenderTime: @Sendable (_ duration: Duration) -> Void
+    @DependencyEndpoint public var recordWebViewRenderTime: @Sendable (_ duration: Duration) -> Void
 
     /// Record CSS injection time
-    @DependencyEndpoint
-    public var recordCSSInjectionTime: @Sendable (_ duration: Duration) -> Void
+    @DependencyEndpoint public var recordCSSInjectionTime: @Sendable (_ duration: Duration) -> Void
 
     /// Record HTML data conversion time
-    @DependencyEndpoint
-    public var recordDataConversionTime: @Sendable (_ duration: Duration) -> Void
+    @DependencyEndpoint public var recordDataConversionTime:
+      @Sendable (_ duration: Duration) -> Void
   }
 }
 
@@ -127,14 +118,10 @@ extension PDF.Render.Metrics {
   /// Increments the failures counter.
   ///
   /// - Parameter error: Optional error for dimensional tracking
-  public func recordFailure(error: PrintingError? = nil) {
-    incrementPDFsFailed()
-  }
+  public func recordFailure(error: PrintingError? = nil) { incrementPDFsFailed() }
 
   /// Record pool replacement
   ///
   /// Increments the pool replacements counter.
-  public func recordPoolReplacement() {
-    incrementPoolReplacements()
-  }
+  public func recordPoolReplacement() { incrementPoolReplacements() }
 }

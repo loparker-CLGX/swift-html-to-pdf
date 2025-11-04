@@ -15,8 +15,7 @@ import Testing
 @Suite("Metrics Integration", .dependency(\.pdf.render.metrics, .recording))
 struct MetricsIntegrationTests {
 
-  @Test("Metrics record counter increments")
-  func metricsRecordIncrements() {
+  @Test("Metrics record counter increments") func metricsRecordIncrements() {
     @Dependency(\.pdf.render.metrics) var metrics
     @Dependency(\.metricsStorage) var storage
 
@@ -26,8 +25,7 @@ struct MetricsIntegrationTests {
     #expect(storage.pdfsGenerated == 1, "Storage should capture increment")
   }
 
-  @Test("Metrics record PDF generation success")
-  func metricsRecordSuccess() async throws {
+  @Test("Metrics record PDF generation success") func metricsRecordSuccess() async throws {
     @Dependency(\.pdf) var pdf
     @Dependency(\.metricsStorage) var storage
 
@@ -42,8 +40,7 @@ struct MetricsIntegrationTests {
     }
   }
 
-  @Test("Metrics record multiple PDF generations")
-  func metricsRecordMultiple() async throws {
+  @Test("Metrics record multiple PDF generations") func metricsRecordMultiple() async throws {
     @Dependency(\.pdf) var pdf
     @Dependency(\.metricsStorage) var storage
 
@@ -52,9 +49,7 @@ struct MetricsIntegrationTests {
       let html = (1...count).map { "<html><body><p>Document \($0)</p></body></html>" }
 
       var resultCount = 0
-      for try await _ in try await pdf.render.client.html(html, to: output) {
-        resultCount += 1
-      }
+      for try await _ in try await pdf.render.client.html(html, to: output) { resultCount += 1 }
 
       #expect(resultCount == count)
       #expect(storage.pdfsGenerated == Int64(count))
@@ -65,8 +60,7 @@ struct MetricsIntegrationTests {
     }
   }
 
-  @Test("Metrics track pagination mode dimension")
-  func metricsTrackPaginationMode() async throws {
+  @Test("Metrics track pagination mode dimension") func metricsTrackPaginationMode() async throws {
     @Dependency(\.metricsStorage) var storage
 
     try await withTemporaryDirectory { output in
@@ -103,8 +97,7 @@ struct MetricsIntegrationTests {
     }
   }
 
-  @Test("Metrics track pool utilization")
-  func metricsTrackPoolUtilization() async throws {
+  @Test("Metrics track pool utilization") func metricsTrackPoolUtilization() async throws {
     @Dependency(\.pdf) var pdf
     @Dependency(\.metricsStorage) var storage
 
@@ -117,8 +110,7 @@ struct MetricsIntegrationTests {
     }
   }
 
-  @Test("Metrics can be reset between operations")
-  func metricsReset() async throws {
+  @Test("Metrics can be reset between operations") func metricsReset() async throws {
     @Dependency(\.pdf) var pdf
     @Dependency(\.metricsStorage) var storage
 

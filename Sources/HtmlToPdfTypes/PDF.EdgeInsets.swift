@@ -52,9 +52,7 @@ public struct EdgeInsets: Sendable {
   /// Negative values are automatically clamped to zero.
   ///
   /// - Parameter all: Margin for all sides in points (clamped to >= 0)
-  public init(all: CGFloat) {
-    self.init(top: all, left: all, bottom: all, right: all)
-  }
+  public init(all: CGFloat) { self.init(top: all, left: all, bottom: all, right: all) }
 
   /// Creates edge insets with horizontal and vertical margins
   ///

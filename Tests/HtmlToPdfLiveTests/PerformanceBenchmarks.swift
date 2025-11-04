@@ -14,9 +14,7 @@ import Testing
 @testable import CoreMetrics
 @testable import HtmlToPdfLive
 
-extension Tag {
-  @Tag static var benchmark: Self
-}
+extension Tag { @Tag static var benchmark: Self }
 
 // MARK: - Test-Only Extensions
 
@@ -46,12 +44,7 @@ extension TestMetricsBackend {
 ///
 /// These tests generate consistent performance metrics for documentation.
 /// Run multiple times and report the median results.
-@Suite(
-  "Performance Benchmarks",
-  .serialized,
-  .tags(.benchmark)
-)
-struct PerformanceBenchmarks {
+@Suite("Performance Benchmarks", .serialized, .tags(.benchmark)) struct PerformanceBenchmarks {
   @Dependency(\.pdf) var pdf
   // MARK: - Helper Types
 
@@ -60,17 +53,13 @@ struct PerformanceBenchmarks {
 
     func update(_ current: MemorySnapshot) {
       if let existingPeak = peak {
-        if current.residentMB > existingPeak.residentMB {
-          peak = current
-        }
+        if current.residentMB > existingPeak.residentMB { peak = current }
       } else {
         peak = current
       }
     }
 
-    func getPeak() -> MemorySnapshot {
-      peak ?? MemorySnapshot(residentMB: 0, virtualMB: 0)
-    }
+    func getPeak() -> MemorySnapshot { peak ?? MemorySnapshot(residentMB: 0, virtualMB: 0) }
   }
 
   struct MemorySnapshot: Sendable {
@@ -83,18 +72,11 @@ struct PerformanceBenchmarks {
 
       let result = withUnsafeMutablePointer(to: &info) {
         $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-          task_info(
-            mach_task_self_,
-            task_flavor_t(MACH_TASK_BASIC_INFO),
-            $0,
-            &count
-          )
+          task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
         }
       }
 
-      guard result == KERN_SUCCESS else {
-        return MemorySnapshot(residentMB: 0, virtualMB: 0)
-      }
+      guard result == KERN_SUCCESS else { return MemorySnapshot(residentMB: 0, virtualMB: 0) }
 
       return MemorySnapshot(
         residentMB: Double(info.resident_size) / 1_048_576,
@@ -120,21 +102,13 @@ struct PerformanceBenchmarks {
     let p95Duration: TimeInterval
     let p99Duration: TimeInterval
 
-    var throughputPerSec: String {
-      String(format: "%.0f", throughput)
-    }
+    var throughputPerSec: String { String(format: "%.0f", throughput) }
 
-    var avgPerItemMs: String {
-      String(format: "%.2f", avgPerItem * 1000)
-    }
+    var avgPerItemMs: String { String(format: "%.2f", avgPerItem * 1000) }
 
-    var memoryDeltaMB: Double {
-      memoryAfter.residentMB - memoryBefore.residentMB
-    }
+    var memoryDeltaMB: Double { memoryAfter.residentMB - memoryBefore.residentMB }
 
-    var memoryPerPDFKB: Double {
-      (memoryDeltaMB * 1024) / Double(count)
-    }
+    var memoryPerPDFKB: Double { (memoryDeltaMB * 1024) / Double(count) }
 
     func printMarkdownRow() {
       print(
@@ -151,8 +125,7 @@ struct PerformanceBenchmarks {
 
   // MARK: - Benchmarks
 
-  @Test("Benchmark: 100 simple PDFs")
-  func benchmark100SimplePDFs() async throws {
+  @Test("Benchmark: 100 simple PDFs") func benchmark100SimplePDFs() async throws {
     let result = try await runBenchmark(
       name: "100 Simple PDFs",
       count: 100,
@@ -163,8 +136,7 @@ struct PerformanceBenchmarks {
     printBenchmarkResult(result)
   }
 
-  @Test("Benchmark: 1,000 simple PDFs")
-  func benchmark1kSimplePDFs() async throws {
+  @Test("Benchmark: 1,000 simple PDFs") func benchmark1kSimplePDFs() async throws {
     let result = try await runBenchmark(
       name: "1k Simple PDFs",
       count: 1_000,
@@ -175,8 +147,7 @@ struct PerformanceBenchmarks {
     printBenchmarkResult(result)
   }
 
-  @Test("Benchmark: 10,000 simple PDFs")
-  func benchmark10kSimplePDFs() async throws {
+  @Test("Benchmark: 10,000 simple PDFs") func benchmark10kSimplePDFs() async throws {
     let result = try await runBenchmark(
       name: "10k Simple PDFs",
       count: 10_000,
@@ -187,8 +158,7 @@ struct PerformanceBenchmarks {
     printBenchmarkResult(result)
   }
 
-  @Test("Benchmark: 100 complex PDFs")
-  func benchmark100ComplexPDFs() async throws {
+  @Test("Benchmark: 100 complex PDFs") func benchmark100ComplexPDFs() async throws {
     let result = try await runBenchmark(
       name: "100 Complex PDFs",
       count: 100,
@@ -199,8 +169,7 @@ struct PerformanceBenchmarks {
     printBenchmarkResult(result)
   }
 
-  @Test("Benchmark: 1,000 complex PDFs")
-  func benchmark1kComplexPDFs() async throws {
+  @Test("Benchmark: 1,000 complex PDFs") func benchmark1kComplexPDFs() async throws {
     let result = try await runBenchmark(
       name: "1k Complex PDFs",
       count: 1_000,
@@ -211,12 +180,9 @@ struct PerformanceBenchmarks {
     printBenchmarkResult(result)
   }
 
-  @Test("Benchmark: Concurrent batches")
-  func benchmarkConcurrentBatches() async throws {
+  @Test("Benchmark: Concurrent batches") func benchmarkConcurrentBatches() async throws {
     let output = URL.output()
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     let startTime = Date()
 
@@ -276,8 +242,7 @@ struct PerformanceBenchmarks {
 
   }
 
-  @Test("Benchmark: Pool warmup time")
-  func benchmarkPoolWarmup() async throws {
+  @Test("Benchmark: Pool warmup time") func benchmarkPoolWarmup() async throws {
 
     // This measures the initial pool creation cost
     // Note: With background warmup, this should be very fast
@@ -287,9 +252,7 @@ struct PerformanceBenchmarks {
     let html = "<html><body><p>Test</p></body></html>"
     let output = URL.output().appendingPathComponent("warmup.pdf")
 
-    defer {
-      try? FileManager.default.removeItem(at: output)
-    }
+    defer { try? FileManager.default.removeItem(at: output) }
 
     _ = try await pdf.render.client.html(html, to: output)
 
@@ -306,11 +269,7 @@ struct PerformanceBenchmarks {
 
   // MARK: - Summary Report
 
-  @Test(
-    "Generate README Performance Table",
-    .disabled(),
-    .timeLimit(.minutes(10))
-  )
+  @Test("Generate README Performance Table", .disabled(), .timeLimit(.minutes(10)))
   func generateReadmeTable() async throws {
     print("\n")
     print("╔═══════════════════════════════════════════════════════════════════════════╗")
@@ -406,9 +365,7 @@ struct PerformanceBenchmarks {
       "|---------------------------|----------|----------|--------------|-----------|----------|"
     )
 
-    for result in paginatedResults {
-      result.printMarkdownRow()
-    }
+    for result in paginatedResults { result.printMarkdownRow() }
 
     print()
 
@@ -426,9 +383,7 @@ struct PerformanceBenchmarks {
       "|---------------------------|----------|----------|--------------|-----------|----------|"
     )
 
-    for result in continuousResults {
-      result.printMarkdownRow()
-    }
+    for result in continuousResults { result.printMarkdownRow() }
 
     print()
 
@@ -442,9 +397,7 @@ struct PerformanceBenchmarks {
       "|---------------------------|----------|----------|--------------|----------|----------|----------|----------|----------|"
     )
 
-    for result in continuousResults + paginatedResults {
-      result.printDetailedRow()
-    }
+    for result in continuousResults + paginatedResults { result.printDetailedRow() }
 
     print()
 
@@ -528,13 +481,9 @@ struct PerformanceBenchmarks {
     } operation: {
       let output = URL.output()
 
-      defer {
-        try? FileManager.default.removeItem(at: output)
-      }
+      defer { try? FileManager.default.removeItem(at: output) }
 
-      let html = (1...count).map { i in
-        html.replacingOccurrences(of: "{{ID}}", with: "\(i)")
-      }
+      let html = (1...count).map { i in html.replacingOccurrences(of: "{{ID}}", with: "\(i)") }
 
       let memoryBefore = MemorySnapshot.current()
       let peakMemoryActor = PeakMemoryTracker()
@@ -668,18 +617,12 @@ struct PerformanceBenchmarks {
 /// **Manual-only tests** (skipped in CI for faster feedback)
 ///
 /// Run locally with: swift test --filter "Performance Analysis"
-@Suite(
-  "Performance Analysis",
-  .serialized,
-  .tags(.benchmark)
-)
-struct PerformanceAnalysisTests {
+@Suite("Performance Analysis", .serialized, .tags(.benchmark)) struct PerformanceAnalysisTests {
   @Dependency(\.pdf) var pdf
 
   // MARK: - Detailed Timing Breakdown
 
-  @Test("Performance breakdown with detailed timing")
-  func performanceBreakdown() async throws {
+  @Test("Performance breakdown with detailed timing") func performanceBreakdown() async throws {
     final class TimingStorage: @unchecked Sendable {
       private let lock = NSLock()
       private var _poolTimes: [Duration] = []
@@ -738,9 +681,7 @@ struct PerformanceAnalysisTests {
         let start = ContinuousClock.now
         var completed = 0
 
-        for try await _ in try await pdf.render.client.documents(documents) {
-          completed += 1
-        }
+        for try await _ in try await pdf.render.client.documents(documents) { completed += 1 }
 
         let duration = ContinuousClock.now - start
         let seconds =
@@ -784,8 +725,7 @@ struct PerformanceAnalysisTests {
 
   // MARK: - Concurrency Sweep
 
-  @Test("Concurrency sweep to find optimal level")
-  func concurrencySweep() async throws {
+  @Test("Concurrency sweep to find optimal level") func concurrencySweep() async throws {
     let levels = [4, 8, 12, 16]
     let sampleSize = 2000
 
@@ -806,17 +746,16 @@ struct PerformanceAnalysisTests {
         let documents = (0..<sampleSize).map { i in
           PDF.Document(
             html: "<html><body><h1>Test \(i)</h1></body></html>",
-            destination: FileManager.default.temporaryDirectory
-              .appendingPathComponent("sweep_\(concurrency)_\(i).pdf")
+            destination: FileManager.default.temporaryDirectory.appendingPathComponent(
+              "sweep_\(concurrency)_\(i).pdf"
+            )
           )
         }
 
         let start = ContinuousClock.now
         var count = 0
 
-        for try await _ in try await pdf.render.client.documents(documents) {
-          count += 1
-        }
+        for try await _ in try await pdf.render.client.documents(documents) { count += 1 }
 
         let duration = ContinuousClock.now - start
         let seconds =
@@ -830,9 +769,7 @@ struct PerformanceAnalysisTests {
         )
 
         // Cleanup
-        for doc in documents {
-          try? FileManager.default.removeItem(at: doc.destination)
-        }
+        for doc in documents { try? FileManager.default.removeItem(at: doc.destination) }
       }
     }
 

@@ -103,17 +103,13 @@ extension PDF {
     /// - Parameter filename: A `Sendable` closure that generates a filename for a given index.
     ///   The closure must be thread-safe and should return consistent results for the same index
     ///   unless intentionally non-deterministic (like UUID-based strategies).
-    public init(filename: @escaping @Sendable (Int) -> String) {
-      self._filename = filename
-    }
+    public init(filename: @escaping @Sendable (Int) -> String) { self._filename = filename }
 
     /// Generate filename for given index
     ///
     /// - Parameter index: Zero-based index in the batch operation
     /// - Returns: Filename without extension (extension will be added by the system)
-    public func filename(for index: Int) -> String {
-      _filename(index)
-    }
+    public func filename(for index: Int) -> String { _filename(index) }
   }
 }
 
@@ -121,12 +117,8 @@ extension PDF {
 
 extension PDF.NamingStrategy {
   /// Sequential numbering: "1.pdf", "2.pdf", ...
-  public static let sequential = PDF.NamingStrategy { index in
-    "\(index + 1)"
-  }
+  public static let sequential = PDF.NamingStrategy { index in "\(index + 1)" }
 
   /// UUID-based names
-  public static let uuid = PDF.NamingStrategy { _ in
-    UUID().uuidString
-  }
+  public static let uuid = PDF.NamingStrategy { _ in UUID().uuidString }
 }

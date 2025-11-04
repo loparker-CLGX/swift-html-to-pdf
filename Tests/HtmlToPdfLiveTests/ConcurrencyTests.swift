@@ -14,10 +14,7 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Concurrency & Pool Behavior"
-)
-struct ConcurrencyTests {
+@Suite("Concurrency & Pool Behavior") struct ConcurrencyTests {
   @Dependency(\.pdf) var pdf
   // MARK: - Pool Efficiency Tests
 
@@ -25,8 +22,7 @@ struct ConcurrencyTests {
     "Pool handles medium to large batches with queueing",
     .dependency(\.pdf.render.configuration.concurrency, 4),
     .dependency(\.pdf.render.configuration.webViewAcquisitionTimeout, .seconds(60))
-  )
-  func testLargeBatch() async throws {
+  ) func testLargeBatch() async throws {
     try await withTemporaryDirectory { output in
       let count = 50
       let html = [String](repeating: TestHTML.simple, count: count)
@@ -34,9 +30,7 @@ struct ConcurrencyTests {
       let stream = try await pdf.render.client.html(html, to: output)
 
       var completedCount = 0
-      for try await _ in stream {
-        completedCount += 1
-      }
+      for try await _ in stream { completedCount += 1 }
 
       // Verify all PDFs were generated
       #expect(completedCount == count, "Should generate all \(count) PDFs")
@@ -54,8 +48,7 @@ struct ConcurrencyTests {
 
   // MARK: - Concurrent Operation Tests
 
-  @Test("Multiple concurrent print operations")
-  func testConcurrentOperations() async throws {
+  @Test("Multiple concurrent print operations") func testConcurrentOperations() async throws {
     try await withTemporaryDirectory { output in
       // Run 3 concurrent batch operations
       await withTaskGroup(of: Void.self) { group in
@@ -86,8 +79,7 @@ struct ConcurrencyTests {
     }
   }
 
-  @Test("Handles rapid sequential operations")
-  func testRapidSequentialOperations() async throws {
+  @Test("Handles rapid sequential operations") func testRapidSequentialOperations() async throws {
     try await withTemporaryDirectory { output in
       // Generate 20 PDFs one after another rapidly
       for i in 1...20 {
@@ -109,8 +101,7 @@ struct ConcurrencyTests {
   @Test(
     "Respects maxConcurrentOperations limit",
     .dependency(\.pdf.render.configuration.concurrency, 2)
-  )
-  func testConcurrencyLimit() async throws {
+  ) func testConcurrencyLimit() async throws {
     try await withTemporaryDirectory { output in
       let count = 10
       let html = [String](repeating: TestHTML.simple, count: count)
@@ -136,8 +127,7 @@ struct ConcurrencyTests {
     "Handles mixed document sizes efficiently",
     .dependency(\.pdf.render.configuration.concurrency, 5),
     .dependency(\.pdf.render.configuration.webViewAcquisitionTimeout, .seconds(60))
-  )
-  func testMixedDocumentSizes() async throws {
+  ) func testMixedDocumentSizes() async throws {
     try await withTemporaryDirectory { output in
       var documents: [PDF.Document] = []
 
@@ -154,21 +144,13 @@ struct ConcurrencyTests {
 
       // Large documents
       for i in 1...5 {
-        documents.append(
-          PDF.Document(
-            html: TestHTML.items(50),
-            title: "large-\(i)",
-            in: output
-          )
-        )
+        documents.append(PDF.Document(html: TestHTML.items(50), title: "large-\(i)", in: output))
       }
 
       let stream = try await pdf.render.client.documents(documents)
 
       var completed = 0
-      for try await _ in stream {
-        completed += 1
-      }
+      for try await _ in stream { completed += 1 }
 
       #expect(completed == 15, "Should complete all mixed size documents")
 
@@ -182,8 +164,7 @@ struct ConcurrencyTests {
 
   // MARK: - Resource Cleanup Tests
 
-  @Test("Resources properly cleaned up after batch")
-  func testResourceCleanup() async throws {
+  @Test("Resources properly cleaned up after batch") func testResourceCleanup() async throws {
     try await withTemporaryDirectory { output in
       // Generate multiple batches sequentially
       for batch in 1...3 {

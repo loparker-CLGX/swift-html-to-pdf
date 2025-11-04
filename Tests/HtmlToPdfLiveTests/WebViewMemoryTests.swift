@@ -29,9 +29,7 @@ import Testing
       }
     }
 
-    guard result == KERN_SUCCESS else {
-      return 0
-    }
+    guard result == KERN_SUCCESS else { return 0 }
 
     // phys_footprint is the most accurate measure of actual memory used
     return info.phys_footprint
@@ -48,18 +46,13 @@ import Testing
     return String(format: "\(sign)%.1f MB", mb)
   }
 
-  @Suite(
-    "WebView Memory Usage Analysis",
-    .tags(.webViewMemory)
-  )
-  struct WebViewMemoryTests {
+  @Suite("WebView Memory Usage Analysis", .tags(.webViewMemory)) struct WebViewMemoryTests {
 
-    @Test("Baseline: Process memory before any operations")
-    func measureBaselineMemory() async throws {
+    @Test("Baseline: Process memory before any operations") func measureBaselineMemory()
+      async throws
+    {
       // Force GC
-      for _ in 0..<3 {
-        autoreleasepool {}
-      }
+      for _ in 0..<3 { autoreleasepool {} }
       try await Task.sleep(for: .milliseconds(500))
 
       let baseline = currentMemoryUsage()
@@ -69,8 +62,7 @@ import Testing
       print("Process baseline: \(formatBytes(baseline))\n")
     }
 
-    @Test("Steady-state memory by concurrency level")
-    func measureSteadyStateMemory() async throws {
+    @Test("Steady-state memory by concurrency level") func measureSteadyStateMemory() async throws {
       print("\n╔════════════════════════════════════════════════════════════════╗")
       print("║  STEADY-STATE MEMORY USAGE BY CONCURRENCY LEVEL                ║")
       print("╚════════════════════════════════════════════════════════════════╝")
@@ -96,10 +88,7 @@ import Testing
 
           // Phase 1: Warm-up (50 PDFs to reach steady state)
           let warmupDocs = (0..<50).map { i in
-            PDF.Document(
-              html: html,
-              destination: output.appendingPathComponent("warmup_\(i).pdf")
-            )
+            PDF.Document(html: html, destination: output.appendingPathComponent("warmup_\(i).pdf"))
           }
 
           for try await _ in try await pdf.render.client.documents(warmupDocs) {}
@@ -107,10 +96,7 @@ import Testing
 
           // Phase 2: Measure during sustained rendering (50 PDFs)
           let measureDocs = (0..<50).map { i in
-            PDF.Document(
-              html: html,
-              destination: output.appendingPathComponent("measure_\(i).pdf")
-            )
+            PDF.Document(html: html, destination: output.appendingPathComponent("measure_\(i).pdf"))
           }
 
           var samples: [UInt64] = []
@@ -118,9 +104,7 @@ import Testing
 
           for try await _ in try await pdf.render.client.documents(measureDocs) {
             // Sample every 5 PDFs
-            if count % 5 == 0 {
-              samples.append(currentMemoryUsage())
-            }
+            if count % 5 == 0 { samples.append(currentMemoryUsage()) }
             count += 1
           }
 
@@ -133,10 +117,8 @@ import Testing
           let avg = samples.reduce(0, +) / UInt64(samples.count)
 
           print(
-            "Concurrency \(String(format: "%2d", concurrency)):  "
-              + "Min: \(formatBytes(min))  "
-              + "Avg: \(formatBytes(avg))  "
-              + "Max: \(formatBytes(max))  "
+            "Concurrency \(String(format: "%2d", concurrency)):  " + "Min: \(formatBytes(min))  "
+              + "Avg: \(formatBytes(avg))  " + "Max: \(formatBytes(max))  "
               + "Final: \(formatBytes(final))"
           )
 
@@ -149,8 +131,7 @@ import Testing
       print("")
     }
 
-    @Test("Peak memory during concurrent burst")
-    func measurePeakConcurrentMemory() async throws {
+    @Test("Peak memory during concurrent burst") func measurePeakConcurrentMemory() async throws {
       print("\n╔════════════════════════════════════════════════════════════════╗")
       print("║  PEAK MEMORY DURING CONCURRENT BURST                           ║")
       print("╚════════════════════════════════════════════════════════════════╝")
@@ -175,10 +156,7 @@ import Testing
 
           // Warm-up
           let warmupDocs = (0..<20).map { i in
-            PDF.Document(
-              html: html,
-              destination: output.appendingPathComponent("warmup_\(i).pdf")
-            )
+            PDF.Document(html: html, destination: output.appendingPathComponent("warmup_\(i).pdf"))
           }
           for try await _ in try await pdf.render.client.documents(warmupDocs) {}
           try await Task.sleep(for: .milliseconds(500))
@@ -188,10 +166,7 @@ import Testing
           // Burst: Launch concurrency * 2 PDFs to ensure pool saturation
           let burstSize = concurrency * 2
           let burstDocs = (0..<burstSize).map { i in
-            PDF.Document(
-              html: html,
-              destination: output.appendingPathComponent("burst_\(i).pdf")
-            )
+            PDF.Document(html: html, destination: output.appendingPathComponent("burst_\(i).pdf"))
           }
 
           var peakSamples: [UInt64] = [beforeBurst]
@@ -211,10 +186,8 @@ import Testing
 
           print(
             "Concurrency \(String(format: "%2d", concurrency)):  "
-              + "Before: \(formatBytes(beforeBurst))  "
-              + "Peak: \(formatBytes(peak))  "
-              + "Delta: \(formatBytesSigned(delta))  "
-              + "After: \(formatBytes(afterBurst))"
+              + "Before: \(formatBytes(beforeBurst))  " + "Peak: \(formatBytes(peak))  "
+              + "Delta: \(formatBytesSigned(delta))  " + "After: \(formatBytes(afterBurst))"
           )
 
           // Cleanup
@@ -226,8 +199,7 @@ import Testing
       print("")
     }
 
-    @Test("Memory stability over extended batch")
-    func measureMemoryStability() async throws {
+    @Test("Memory stability over extended batch") func measureMemoryStability() async throws {
       print("\n╔════════════════════════════════════════════════════════════════╗")
       print("║  MEMORY STABILITY: 500 PDFs with 8 concurrent                  ║")
       print("╚════════════════════════════════════════════════════════════════╝")
@@ -242,10 +214,7 @@ import Testing
 
         let html = "<html><body><h1>Stability Test</h1></body></html>"
         let documents = (0..<500).map { i in
-          PDF.Document(
-            html: html,
-            destination: output.appendingPathComponent("\(i).pdf")
-          )
+          PDF.Document(html: html, destination: output.appendingPathComponent("\(i).pdf"))
         }
 
         var samples: [(index: Int, memory: UInt64)] = []
@@ -285,14 +254,11 @@ import Testing
         print("")
 
         // Cleanup
-        for doc in documents {
-          try? FileManager.default.removeItem(at: doc.destination)
-        }
+        for doc in documents { try? FileManager.default.removeItem(at: doc.destination) }
       }
     }
 
-    @Test("Pool initialization overhead")
-    func measurePoolInitializationOverhead() async throws {
+    @Test("Pool initialization overhead") func measurePoolInitializationOverhead() async throws {
       print("\n╔════════════════════════════════════════════════════════════════╗")
       print("║  POOL INITIALIZATION OVERHEAD BY CONCURRENCY                   ║")
       print("╚════════════════════════════════════════════════════════════════╝")
@@ -302,9 +268,7 @@ import Testing
 
       for concurrency in levels {
         // Force GC
-        for _ in 0..<3 {
-          autoreleasepool {}
-        }
+        for _ in 0..<3 { autoreleasepool {} }
         try await Task.sleep(for: .milliseconds(500))
 
         let beforeInit = currentMemoryUsage()
@@ -327,8 +291,7 @@ import Testing
 
           print(
             "Concurrency \(String(format: "%2d", concurrency)):  "
-              + "Before: \(formatBytes(beforeInit))  "
-              + "After: \(formatBytes(afterInit))  "
+              + "Before: \(formatBytes(beforeInit))  " + "After: \(formatBytes(afterInit))  "
               + "Overhead: \(formatBytesSigned(overhead))"
           )
 
@@ -340,7 +303,5 @@ import Testing
     }
   }
 
-  extension Tag {
-    @Tag static var webViewMemory: Self
-  }
+  extension Tag { @Tag static var webViewMemory: Self }
 #endif

@@ -65,8 +65,7 @@ extension String {
 ///
 /// This tracker manually calculates metrics instead of using the metrics system.
 /// Prefer MetricsProgressTracker which reads from the actual metrics being recorded.
-@available(*, deprecated, message: "Use MetricsProgressTracker instead")
-actor ProgressTracker {
+@available(*, deprecated, message: "Use MetricsProgressTracker instead") actor ProgressTracker {
   var completed = 0
   var lastReportedAt = Date()
   var lastReportedCompleted = 0
@@ -99,8 +98,7 @@ actor ProgressTracker {
       if now.timeIntervalSince(lastReportedAt) >= reportInterval {
         let progress = Double(completed) / Double(totalCount) * 100
         let metadata: Logger.Metadata = [
-          "completed": "\(completed)",
-          "total": "\(totalCount)",
+          "completed": "\(completed)", "total": "\(totalCount)",
           "progress_pct": "\(String(format: "%.1f", progress))",
           "throughput": "\(String(format: "%.0f", throughput))",  // PDFs per second
           "counter_total": "\(counter?.value ?? 0)",
@@ -123,8 +121,7 @@ actor ProgressTracker {
         let delta = completed - lastReportedCompleted
         let rate = Double(delta) / interval
         let metadata: Logger.Metadata = [
-          "completed": "\(completed)",
-          "total": "\(totalCount)",
+          "completed": "\(completed)", "total": "\(totalCount)",
           "throughput": "\(String(format: "%.0f", rate))",  // PDFs per second
         ]
         if let logHandler = logHandler {
@@ -234,13 +231,10 @@ public actor MetricsProgressTracker {
       pdfsGenerated > 0 ? (elapsed / Double(pdfsGenerated)) * Double(totalCount - pdfsGenerated) : 0
 
     let metadata: Logger.Metadata = [
-      "completed": "\(pdfsGenerated)",
-      "total": "\(totalCount)",
+      "completed": "\(pdfsGenerated)", "total": "\(totalCount)",
       "progress_pct": "\(String(format: "%.1f", progress))",
-      "throughput": "\(String(format: "%.0f", throughput))",
-      "pool_utilization": "\(poolUtil)",
-      "p95_ms": "\(String(format: "%.1f", p95))",
-      "eta_seconds": "\(String(format: "%.0f", eta))",
+      "throughput": "\(String(format: "%.0f", throughput))", "pool_utilization": "\(poolUtil)",
+      "p95_ms": "\(String(format: "%.1f", p95))", "eta_seconds": "\(String(format: "%.0f", eta))",
     ]
 
     if let logHandler = logHandler {

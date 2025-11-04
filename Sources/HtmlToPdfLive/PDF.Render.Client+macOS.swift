@@ -34,8 +34,7 @@
   /// - It is isolated to the MainActor, preventing concurrent access
   /// - The cache dictionary is only accessed from the main actor
   /// - NSPrintOperation internally copies NSPrintInfo, so shared references are safe
-  @MainActor
-  private final class PrintInfoCache: @unchecked Sendable {
+  @MainActor private final class PrintInfoCache: @unchecked Sendable {
     private var cache: [String: NSPrintInfo] = [:]
 
     func get(for config: PDF.Configuration) -> NSPrintInfo {
@@ -67,14 +66,8 @@
   }
 
   /// Shared print info cache accessor
-  @MainActor
-  private func getPrintInfoCache() -> PrintInfoCache {
-    struct Static {
-      @MainActor
-      static let cache: PrintInfoCache = {
-        PrintInfoCache()
-      }()
-    }
+  @MainActor private func getPrintInfoCache() -> PrintInfoCache {
+    struct Static { @MainActor static let cache: PrintInfoCache = { PrintInfoCache() }() }
     return Static.cache
   }
 
@@ -82,21 +75,18 @@
 
   extension PDF.Render.Client {
     /// macOS-specific implementation using WKWebView and NSPrintOperation
-    public static let macOS = PDF.Render.Client(
-      documents: { documents in
-        @Dependency(\.pdf.render.configuration) var config
-        return try await renderDocumentsInternal(documents, config: config)
-      }
-    )
+    public static let macOS = PDF.Render.Client(documents: { documents in
+      @Dependency(\.pdf.render.configuration) var config
+      return try await renderDocumentsInternal(documents, config: config)
+    })
   }
 
   // MARK: - Internal Implementation
 
   extension PDF.Document {
-    @MainActor
-    func renderInternal(config: PDF.Configuration) async throws -> (
-      url: URL, pageCount: Int, dimensions: [CGSize], mode: PDF.PaginationMode
-    ) {
+    @MainActor func renderInternal(
+      config: PDF.Configuration
+    ) async throws -> (url: URL, pageCount: Int, dimensions: [CGSize], mode: PDF.PaginationMode) {
       @Dependency(\.webViewPool) var webViewPool
       let pool = try await webViewPool.pool
       return try await renderWithPool(pool, config: config)
@@ -166,16 +156,12 @@
       }
     }
 
-    @MainActor
-    private func renderWithWebView(
+    @MainActor private func renderWithWebView(
       _ webView: WKWebView,
       config: PDF.Configuration,
       preComputedHTML: Data? = nil
     ) async throws -> (pageCount: Int, dimensions: [CGSize], mode: PDF.PaginationMode) {
-      let delegate = WebViewNavigationDelegate(
-        outputURL: self.destination,
-        configuration: config
-      )
+      let delegate = WebViewNavigationDelegate(outputURL: self.destination, configuration: config)
 
       webView.navigationDelegate = delegate
 
@@ -213,9 +199,7 @@
           },
           onError: { error in
             timeoutTask?.cancel()
-            Task {
-              await handler.resumeIfNeeded(continuation, with: .failure(error))
-            }
+            Task { await handler.resumeIfNeeded(continuation, with: .failure(error)) }
           }
         )
         delegate.printDelegate = printDelegate
@@ -352,10 +336,8 @@
           logger.error(
             "Batch rendering failed",
             metadata: [
-              "completed": "\(completedCount)",
-              "total": "\(documentsArray.count)",
-              "error": "\(error)",
-              "error_type": "\(type(of: error))",
+              "completed": "\(completedCount)", "total": "\(documentsArray.count)",
+              "error": "\(error)", "error_type": "\(type(of: error))",
             ]
           )
           continuation.finish(throwing: error)
@@ -392,10 +374,8 @@
       hasResumed = true
 
       switch result {
-      case .success:
-        continuation.resume()
-      case .failure(let error):
-        continuation.resume(throwing: error)
+      case .success: continuation.resume()
+      case .failure(let error): continuation.resume(throwing: error)
       }
     }
   }
@@ -411,10 +391,8 @@
       hasResumed = true
 
       switch result {
-      case .success(let value):
-        continuation.resume(returning: value)
-      case .failure(let error):
-        continuation.resume(throwing: error)
+      case .success(let value): continuation.resume(returning: value)
+      case .failure(let error): continuation.resume(throwing: error)
       }
     }
   }
@@ -424,9 +402,7 @@
   private func extractPageInfoFromData(_ pdfData: Data) -> (pageCount: Int, dimensions: [CGSize]) {
     guard let provider = CGDataProvider(data: pdfData as CFData),
       let pdfDoc = CGPDFDocument(provider)
-    else {
-      return (0, [])
-    }
+    else { return (0, []) }
 
     let pageCount = pdfDoc.numberOfPages
     var dimensions: [CGSize] = []
@@ -446,10 +422,7 @@
     var printDelegate: PrintDelegate?
     private let configuration: PDF.Configuration
 
-    init(
-      outputURL: URL,
-      configuration: PDF.Configuration
-    ) {
+    init(outputURL: URL, configuration: PDF.Configuration) {
       self.outputURL = outputURL
       self.configuration = configuration
     }
@@ -457,16 +430,11 @@
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
       Task { @MainActor in
         do {
-          let strategy = try await chooseRenderingStrategy(
-            webView: webView,
-            config: configuration
-          )
+          let strategy = try await chooseRenderingStrategy(webView: webView, config: configuration)
 
           switch strategy {
-          case .webView:
-            renderWithWebViewCreatePDF(webView, strategy: strategy)
-          case .printOperation:
-            renderWithNSPrintOperation(webView, strategy: strategy)
+          case .webView: renderWithWebViewCreatePDF(webView, strategy: strategy)
+          case .printOperation: renderWithNSPrintOperation(webView, strategy: strategy)
           }
         } catch {
           printDelegate?.onError?(PrintingError.pdfGenerationFailed(underlyingError: error))
@@ -474,27 +442,23 @@
       }
     }
 
-    @MainActor
-    private func chooseRenderingStrategy(
+    @MainActor private func chooseRenderingStrategy(
       webView: WKWebView,
       config: PDF.Configuration
     ) async throws -> PDF.InternalRenderingMethod {
 
       switch config.paginationMode {
-      case .paginated:
-        return .printOperation
+      case .paginated: return .printOperation
 
-      case .continuous:
-        return .webView
+      case .continuous: return .webView
 
       case .automatic(let heuristic):
         switch heuristic {
         case .contentLength(let threshold):
           // Measure content height
           let height =
-            try await webView.evaluateJavaScript(
-              "document.documentElement.scrollHeight"
-            ) as? CGFloat ?? 0
+            try await webView.evaluateJavaScript("document.documentElement.scrollHeight")
+            as? CGFloat ?? 0
 
           let pageHeight = config.paperSize.height - (config.margins.top + config.margins.bottom)
           let estimatedPages = height / pageHeight
@@ -515,11 +479,9 @@
 
           return (hasPrintCSS || hasPageBreaks) ? .printOperation : .webView
 
-        case .preferSpeed:
-          return .webView
+        case .preferSpeed: return .webView
 
-        case .preferPrintReady:
-          return .printOperation
+        case .preferPrintReady: return .printOperation
         }
       }
     }
@@ -562,8 +524,7 @@
               await MainActor.run {
                 self.printDelegate?.onError?(
                   PrintingError.pdfGenerationFailed(underlyingError: error)
-                )
-                  ?? self.printDelegate?.onFinished(0, [], paginationMode)
+                ) ?? self.printDelegate?.onFinished(0, [], paginationMode)
               }
             }
           }
@@ -640,9 +601,7 @@
       _ webView: WKWebView,
       didFailProvisionalNavigation navigation: WKNavigation!,
       withError error: Error
-    ) {
-      printDelegate?.onError?(PrintingError.webViewLoadingFailed(underlyingError: error))
-    }
+    ) { printDelegate?.onError?(PrintingError.webViewLoadingFailed(underlyingError: error)) }
   }
 
   /// Delegate for handling print operation completion and errors

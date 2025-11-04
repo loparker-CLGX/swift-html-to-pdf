@@ -25,10 +25,7 @@ public actor LiveMetricsDisplay {
   private var displayTask: Task<Void, Never>?
   private var isRunning = false
 
-  public init(
-    metricsBackend: TestMetricsBackend,
-    updateInterval: Duration = .seconds(2)
-  ) {
+  public init(metricsBackend: TestMetricsBackend, updateInterval: Duration = .seconds(2)) {
     self.metricsBackend = metricsBackend
     self.updateInterval = updateInterval
   }
@@ -86,9 +83,7 @@ public func expectCounter(
   line: UInt = #line
 ) async throws {
   let counter = backend.counter(label)
-  guard let counter = counter else {
-    throw MetricsTestError.metricNotFound(label: label)
-  }
+  guard let counter = counter else { throw MetricsTestError.metricNotFound(label: label) }
   let actualValue = counter.value
   guard actualValue == expectedValue else {
     throw MetricsTestError.valueMismatch(
@@ -117,9 +112,7 @@ public func expectLatency(
   line: UInt = #line
 ) async throws {
   let timer = backend.timer(label)
-  guard let timer = timer else {
-    throw MetricsTestError.metricNotFound(label: label)
-  }
+  guard let timer = timer else { throw MetricsTestError.metricNotFound(label: label) }
   let p95 = timer.p95
   guard p95 < threshold else {
     throw MetricsTestError.thresholdExceeded(
@@ -314,9 +307,7 @@ public func timersByDimension(
   var result: [String: TestTimer] = [:]
 
   for timer in timers {
-    if let value = timer.dimensions.first(where: { $0.0 == dimension })?.1 {
-      result[value] = timer
-    }
+    if let value = timer.dimensions.first(where: { $0.0 == dimension })?.1 { result[value] = timer }
   }
 
   return result
@@ -349,8 +340,7 @@ public enum MetricsTestError: Error, CustomStringConvertible {
 
   public var description: String {
     switch self {
-    case .metricNotFound(let label):
-      return "Metric not found: \(label)"
+    case .metricNotFound(let label): return "Metric not found: \(label)"
     case .valueMismatch(let label, let expected, let actual):
       return "Metric '\(label)' value mismatch - expected: \(expected), actual: \(actual)"
     case .thresholdExceeded(let label, let metric, let threshold, let actual):

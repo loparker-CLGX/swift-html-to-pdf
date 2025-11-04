@@ -56,20 +56,10 @@ extension CGSize {
   // MARK: - Orientation
 
   /// Returns landscape version of this size (wider than tall)
-  public var landscape: CGSize {
-    CGSize(
-      width: max(width, height),
-      height: min(width, height)
-    )
-  }
+  public var landscape: CGSize { CGSize(width: max(width, height), height: min(width, height)) }
 
   /// Returns portrait version of this size (taller than wide)
-  public var portrait: CGSize {
-    CGSize(
-      width: min(width, height),
-      height: max(width, height)
-    )
-  }
+  public var portrait: CGSize { CGSize(width: min(width, height), height: max(width, height)) }
 
   /// Whether this size is landscape orientation
   public var isLandscape: Bool { width > height }

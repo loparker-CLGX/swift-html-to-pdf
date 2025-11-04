@@ -56,8 +56,7 @@ public enum TestImages {
 
     public var description: String {
       switch self {
-      case .resourceNotFound(let name):
-        return "Test resource not found: \(name)"
+      case .resourceNotFound(let name): return "Test resource not found: \(name)"
       }
     }
   }

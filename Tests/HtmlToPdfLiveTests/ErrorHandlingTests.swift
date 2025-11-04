@@ -13,16 +13,11 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Error Handling Tests",
-  .serialized
-)
-struct ErrorHandlingTests {
+@Suite("Error Handling Tests", .serialized) struct ErrorHandlingTests {
   @Dependency(\.pdf) var pdf
   // MARK: - Invalid HTML Tests
 
-  @Test("Handles malformed HTML gracefully")
-  func testMalformedHTML() async throws {
+  @Test("Handles malformed HTML gracefully") func testMalformedHTML() async throws {
     try await withTemporaryPDF { output in
       let malformedHTML = "<html><body><h1>Unclosed tag<body></html>"
 
@@ -36,8 +31,7 @@ struct ErrorHandlingTests {
     }
   }
 
-  @Test("Handles empty HTML")
-  func testEmptyHTML() async throws {
+  @Test("Handles empty HTML") func testEmptyHTML() async throws {
     try await withTemporaryPDF { output in
       let emptyHTML = ""
 
@@ -53,8 +47,7 @@ struct ErrorHandlingTests {
   @Test(
     "Handles extremely large HTML",
     .dependency(\.pdf.render.configuration.documentTimeout, .seconds(60))
-  )
-  func testLargeHTML() async throws {
+  ) func testLargeHTML() async throws {
     try await withTemporaryPDF { output in
       // Generate large HTML content (1MB+)
       let largeContent = String(
@@ -77,8 +70,7 @@ struct ErrorHandlingTests {
   @Test(
     "Handles invalid file path",
     .dependency(\.pdf.render.configuration.createDirectories, false)
-  )
-  func testInvalidFilePath() async throws {
+  ) func testInvalidFilePath() async throws {
 
     let html = "<html><body>Test</body></html>"
     let invalidPath = URL(fileURLWithPath: "/invalid/path/that/does/not/exist/test.pdf")
@@ -97,14 +89,10 @@ struct ErrorHandlingTests {
   @Test(
     "Creates directories when requested",
     .dependency(\.pdf.render.configuration.createDirectories, true)
-  )
-  func testDirectoryCreation() async throws {
+  ) func testDirectoryCreation() async throws {
     try await withTemporaryDirectory { output in
       let html = "<html><body>Test</body></html>"
-      let nestedPath =
-        output
-        .appendingPathComponent("nested")
-        .appendingPathComponent("directories")
+      let nestedPath = output.appendingPathComponent("nested").appendingPathComponent("directories")
         .appendingPathComponent("test.pdf")
 
       // Should create all intermediate directories
@@ -120,8 +108,7 @@ struct ErrorHandlingTests {
     "Handles WebView pool resource timeout",
     .dependency(\.pdf.render.configuration.concurrency, 1),
     .dependency(\.pdf.render.configuration.webViewAcquisitionTimeout, .seconds(1))
-  )
-  func testWebViewPoolTimeout() async throws {
+  ) func testWebViewPoolTimeout() async throws {
     await withTemporaryDirectory { output in
       // Launch many concurrent operations to exhaust the pool
       await withTaskGroup(of: Void.self) { group in
@@ -159,15 +146,12 @@ struct ErrorHandlingTests {
     "Handles WebView pool under heavy concurrent load",
     .dependency(\.pdf.render.configuration.concurrency, 2),
     .dependency(\.pdf.render.configuration.webViewAcquisitionTimeout, .seconds(30))
-  )
-  func testWebViewPoolUnderLoad() async throws {
+  ) func testWebViewPoolUnderLoad() async throws {
     try await withTemporaryDirectory { output in
       let count = 20
 
       // Launch more concurrent operations than the pool size
-      let html = (1...count).map { i in
-        "<html><body><h1>Document \(i)</h1></body></html>"
-      }
+      let html = (1...count).map { i in "<html><body><h1>Document \(i)</h1></body></html>" }
 
       var urls: [URL] = []
       for try await result in try await pdf.render.client.html(html, to: output) {
@@ -183,8 +167,7 @@ struct ErrorHandlingTests {
   @Test(
     "Respects document timeout",
     .dependency(\.pdf.render.configuration.documentTimeout, .milliseconds(1))
-  )
-  func testDocumentTimeout() async throws {
+  ) func testDocumentTimeout() async throws {
     await withTemporaryPDF { output in
       // Create HTML that takes time to render (complex content)
       let complexHTML = """
@@ -217,20 +200,15 @@ struct ErrorHandlingTests {
 
   // MARK: - Special Characters Tests
 
-  @Test("Handles special characters in filenames")
-  func testSpecialCharactersInFilename() async throws {
+  @Test("Handles special characters in filenames") func testSpecialCharactersInFilename()
+    async throws
+  {
     try await withTemporaryDirectory { output in
       let html = "<html><body><h1>Special Characters Test</h1></body></html>"
 
       let specialNames = [
-        "test with spaces",
-        "test/with/slashes",
-        "test:with:colons",
-        "test?with?questions",
-        "test<with>brackets",
-        "test|with|pipes",
-        "test*with*asterisks",
-        "test\"with\"quotes",
+        "test with spaces", "test/with/slashes", "test:with:colons", "test?with?questions",
+        "test<with>brackets", "test|with|pipes", "test*with*asterisks", "test\"with\"quotes",
       ]
 
       for name in specialNames {
@@ -250,14 +228,10 @@ struct ErrorHandlingTests {
 
 // MARK: - Typed Error Tests
 
-@Suite(
-  "PrintingError Tests"
-)
-struct PrintingErrorTests {
+@Suite("PrintingError Tests") struct PrintingErrorTests {
   @Dependency(\.pdf) var pdf
 
-  @Test("Error descriptions are informative")
-  func testErrorDescriptions() {
+  @Test("Error descriptions are informative") func testErrorDescriptions() {
     let errors: [PrintingError] = [
       .invalidHTML("<html>"),
       .invalidFilePath(URL(fileURLWithPath: "/test.pdf"), underlyingError: nil),
@@ -274,8 +248,7 @@ struct PrintingErrorTests {
     }
   }
 
-  @Test("Error handling with resource pool")
-  func testResourcePoolErrorHandling() async throws {
+  @Test("Error handling with resource pool") func testResourcePoolErrorHandling() async throws {
     try await withTemporaryPDF { output in
       // Test timeout scenario with very short timeout
       let html = "<html><body><h1>Test Document</h1></body></html>"

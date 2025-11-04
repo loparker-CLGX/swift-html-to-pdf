@@ -13,16 +13,11 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Basic Functionality",
-  .serialized
-)
-struct BasicFunctionalityTests {
+@Suite("Basic Functionality", .serialized) struct BasicFunctionalityTests {
   @Dependency(\.pdf) var pdf
   // MARK: - Single Document Tests
 
-  @Test("Generate single PDF from HTML string")
-  func testSinglePDFGeneration() async throws {
+  @Test("Generate single PDF from HTML string") func testSinglePDFGeneration() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.simple, to: output)
 
@@ -33,8 +28,7 @@ struct BasicFunctionalityTests {
     }
   }
 
-  @Test("Generate PDF with title")
-  func testPDFWithTitle() async throws {
+  @Test("Generate PDF with title") func testPDFWithTitle() async throws {
     try await withTemporaryDirectory { directory in
       let html = TestHTML.simple
       let filename = "test-document"
@@ -53,8 +47,7 @@ struct BasicFunctionalityTests {
     "Generate PDF with custom configuration",
     .dependency(\.pdf.render.configuration.paperSize, .a4.landscape),
     .dependency(\.pdf.render.configuration.margins, .wide)
-  )
-  func testCustomConfiguration() async throws {
+  ) func testCustomConfiguration() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.simple, to: output)
 
@@ -67,8 +60,7 @@ struct BasicFunctionalityTests {
 
   // MARK: - Small Batch Tests
 
-  @Test("Generate small batch from strings and documents")
-  func testSmallBatch() async throws {
+  @Test("Generate small batch from strings and documents") func testSmallBatch() async throws {
     try await withTemporaryDirectory { output in
       let count = 5
 
@@ -92,17 +84,11 @@ struct BasicFunctionalityTests {
 
       // Test batch from documents
       let documents = (1...count).map { i in
-        PDF.Document(
-          html: TestHTML.simple,
-          title: "doc-\(i)",
-          in: output
-        )
+        PDF.Document(html: TestHTML.simple, title: "doc-\(i)", in: output)
       }
 
       var resultCount = 0
-      for try await _ in try await pdf.render.client.documents(documents) {
-        resultCount += 1
-      }
+      for try await _ in try await pdf.render.client.documents(documents) { resultCount += 1 }
 
       #expect(resultCount == count, "Should create \(count) PDF files from documents")
 
@@ -116,8 +102,7 @@ struct BasicFunctionalityTests {
 
   // MARK: - Content Variety Tests
 
-  @Test("Generate PDF with complex HTML")
-  func testComplexHTML() async throws {
+  @Test("Generate PDF with complex HTML") func testComplexHTML() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.items(50), to: output)
 
@@ -133,8 +118,7 @@ struct BasicFunctionalityTests {
 
   // MARK: - Missing API Coverage
 
-  @Test("renderToData returns PDF data")
-  func testRenderToData() async throws {
+  @Test("renderToData returns PDF data") func testRenderToData() async throws {
     let html = TestHTML.simple
     let data = try await pdf.render.client.data(for: html)
 
@@ -148,8 +132,7 @@ struct BasicFunctionalityTests {
   @Test(
     "baseURL configuration with external resources",
     .dependency(\.pdf.render.configuration.baseURL, URL(string: "https://example.com"))
-  )
-  func testBaseURLConfiguration() async throws {
+  ) func testBaseURLConfiguration() async throws {
     try await withTemporaryPDF { output in
       let html = """
         <html>
@@ -171,10 +154,7 @@ struct BasicFunctionalityTests {
     }
   }
 
-  @Test(
-    "US Letter paper size",
-    .dependency(\.pdf.render.configuration.paperSize, .letter)
-  )
+  @Test("US Letter paper size", .dependency(\.pdf.render.configuration.paperSize, .letter))
   func testUSLetterPaperSize() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.simple, to: output)
@@ -186,10 +166,7 @@ struct BasicFunctionalityTests {
     }
   }
 
-  @Test(
-    "A3 paper size",
-    .dependency(\.pdf.render.configuration.paperSize, .a3)
-  )
+  @Test("A3 paper size", .dependency(\.pdf.render.configuration.paperSize, .a3))
   func testA3PaperSize() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.simple, to: output)
@@ -198,10 +175,7 @@ struct BasicFunctionalityTests {
     }
   }
 
-  @Test(
-    "Minimal margins preset",
-    .dependency(\.pdf.render.configuration.margins, .minimal)
-  )
+  @Test("Minimal margins preset", .dependency(\.pdf.render.configuration.margins, .minimal))
   func testMinimalMargins() async throws {
     try await withTemporaryPDF { output in
       let result = try await pdf.render.client.html(TestHTML.simple, to: output)

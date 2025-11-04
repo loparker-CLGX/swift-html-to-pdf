@@ -8,8 +8,4 @@
 import Dependencies
 import Foundation
 
-extension PDF: TestDependencyKey {
-  public static let testValue = PDF(
-    render: .testValue
-  )
-}
+extension PDF: TestDependencyKey { public static let testValue = PDF(render: .testValue) }

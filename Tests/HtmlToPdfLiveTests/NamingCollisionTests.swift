@@ -13,10 +13,7 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Naming Collision Tests"
-)
-struct NamingCollisionTests {
+@Suite("Naming Collision Tests") struct NamingCollisionTests {
   @Dependency(\.pdf) var pdf
 
   @Test("Concurrent renders with unique titles produce unique files")
@@ -51,9 +48,7 @@ struct NamingCollisionTests {
       )
 
       // Verify all files actually exist
-      let existingFiles = urls.filter { url in
-        FileManager.default.fileExists(atPath: url.path)
-      }
+      let existingFiles = urls.filter { url in FileManager.default.fileExists(atPath: url.path) }
 
       #expect(existingFiles.count == documentCount, "All files should exist on disk")
     }
@@ -61,19 +56,14 @@ struct NamingCollisionTests {
 
   @Test(
     "Sequential naming strategy produces sequential files",
-    .dependencies {
-      $0.pdf.render.configuration.namingStrategy = .sequential
-    }
-  )
-  func testSequentialNamingStrategy() async throws {
+    .dependencies { $0.pdf.render.configuration.namingStrategy = .sequential }
+  ) func testSequentialNamingStrategy() async throws {
     try await withTemporaryDirectory { dir in
 
       @Dependency(\.pdf) var configuredPDF
 
       // Use convenience method that respects naming strategy
-      let html = (1...10).map { i in
-        "<html><body>Doc \(i)</body></html>"
-      }
+      let html = (1...10).map { i in "<html><body>Doc \(i)</body></html>" }
 
       var results: [PDF.Render.Result] = []
 
@@ -94,19 +84,14 @@ struct NamingCollisionTests {
 
   @Test(
     "UUID naming strategy produces unique names",
-    .dependencies {
-      $0.pdf.render.configuration.namingStrategy = .uuid
-    }
-  )
-  func testUUIDNamingStrategy() async throws {
+    .dependencies { $0.pdf.render.configuration.namingStrategy = .uuid }
+  ) func testUUIDNamingStrategy() async throws {
     try await withTemporaryDirectory { dir in
 
       @Dependency(\.pdf) var configuredPDF
 
       // Use convenience method that respects naming strategy
-      let html = (1...50).map { i in
-        "<html><body>Doc \(i)</body></html>"
-      }
+      let html = (1...50).map { i in "<html><body>Doc \(i)</body></html>" }
 
       var results: [PDF.Render.Result] = []
 
@@ -137,15 +122,12 @@ struct NamingCollisionTests {
         String(format: "invoice-%06d", index + 1)
       }
     }
-  )
-  func testCustomNamingStrategy() async throws {
+  ) func testCustomNamingStrategy() async throws {
     try await withTemporaryDirectory { dir in
       @Dependency(\.pdf) var configuredPDF
 
       // Use convenience method that respects naming strategy
-      let html = (1...10).map { i in
-        "<html><body>Invoice \(i)</body></html>"
-      }
+      let html = (1...10).map { i in "<html><body>Invoice \(i)</body></html>" }
 
       var results: [PDF.Render.Result] = []
 
@@ -162,8 +144,9 @@ struct NamingCollisionTests {
     }
   }
 
-  @Test("High concurrency naming collisions are handled")
-  func testHighConcurrencyNamingCollisions() async throws {
+  @Test("High concurrency naming collisions are handled") func testHighConcurrencyNamingCollisions()
+    async throws
+  {
     @Dependency(\.pdf) var pdf
 
     // Use high concurrency for stress testing
@@ -183,9 +166,7 @@ struct NamingCollisionTests {
         let documentCount = 200
 
         // Use convenience method that respects naming strategy
-        let html = (1...documentCount).map { i in
-          "<html><body>Document \(i)</body></html>"
-        }
+        let html = (1...documentCount).map { i in "<html><body>Document \(i)</body></html>" }
 
         var results: [PDF.Render.Result] = []
 
@@ -213,24 +194,18 @@ struct NamingCollisionTests {
     }
   }
 
-  @Test("Naming with special characters is handled safely")
-  func testNamingWithSpecialCharacters() async throws {
+  @Test("Naming with special characters is handled safely") func testNamingWithSpecialCharacters()
+    async throws
+  {
     try await withTemporaryDirectory { dir in
       // Test that special characters in titles are handled
       let specialTitles = [
-        "test/with/slashes",
-        "test:with:colons",
-        "test?with?questions",
-        "test*with*asterisks",
+        "test/with/slashes", "test:with:colons", "test?with?questions", "test*with*asterisks",
         "test<with>brackets",
       ]
 
       for title in specialTitles {
-        let doc = PDF.Document(
-          html: "<html><body>Test</body></html>",
-          title: title,
-          in: dir
-        )
+        let doc = PDF.Document(html: "<html><body>Test</body></html>", title: title, in: dir)
 
         let result = try await pdf.render.client.document(doc)
 

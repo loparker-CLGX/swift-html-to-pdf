@@ -249,19 +249,13 @@ extension PDF.Configuration {
   )
 
   /// Multi-page documents with correct A4 dimensions (alias for .default)
-  public static let multiPage = PDF.Configuration(
-    paginationMode: .paginated
-  )
+  public static let multiPage = PDF.Configuration(paginationMode: .paginated)
 
   /// Fast continuous mode for screen viewing (single tall page)
-  public static let continuous = PDF.Configuration(
-    paginationMode: .continuous
-  )
+  public static let continuous = PDF.Configuration(paginationMode: .continuous)
 
   /// Smart auto-detection based on content
-  public static let smart = PDF.Configuration(
-    paginationMode: .automatic()
-  )
+  public static let smart = PDF.Configuration(paginationMode: .automatic())
 
   /// Optimized for large batch processing (auto-detect with speed preference)
   public static let largeBatch = PDF.Configuration(

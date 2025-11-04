@@ -13,21 +13,14 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Cancellation Tests",
-  .serialized
-)
-struct CancellationTests {
+@Suite("Cancellation Tests", .serialized) struct CancellationTests {
   @Dependency(\.pdf) var pdf
 
-  @Test("Task cancellation propagates correctly")
-  func testCancellationPropagates() async throws {
+  @Test("Task cancellation propagates correctly") func testCancellationPropagates() async throws {
     try await withTemporaryPDF { output in
       let html = String(repeating: "<p>Content that takes time to render</p>", count: 1000)
 
-      let task = Task {
-        try await pdf.render(html: html, to: output)
-      }
+      let task = Task { try await pdf.render(html: html, to: output) }
 
       // Cancel after a short delay
       try await Task.sleep(for: .milliseconds(10))
@@ -44,21 +37,17 @@ struct CancellationTests {
     }
   }
 
-  @Test("Cancelled task does not produce output file")
-  func testCancelledTaskNoOutput() async throws {
+  @Test("Cancelled task does not produce output file") func testCancelledTaskNoOutput() async throws
+  {
     try await withTemporaryPDF { output in
       let html = String(repeating: "<div style='height: 1000px'>Page</div>", count: 100)
 
-      let task = Task {
-        try await pdf.render(html: html, to: output)
-      }
+      let task = Task { try await pdf.render(html: html, to: output) }
 
       // Cancel immediately
       task.cancel()
 
-      do {
-        _ = try await task.value
-      } catch {
+      do { _ = try await task.value } catch {
         // Expected to throw
       }
 
@@ -85,24 +74,18 @@ struct CancellationTests {
   @Test("Multiple concurrent tasks can be cancelled independently")
   func testMultipleCancellationsIndependent() async throws {
     await withTemporaryDirectory { dir in
-      let html = (1...10).map { i in
-        "<html><body><h1>Document \(i)</h1></body></html>"
-      }
+      let html = (1...10).map { i in "<html><body><h1>Document \(i)</h1></body></html>" }
 
       var tasks: [Task<URL, Error>] = []
 
       for (index, html) in html.enumerated() {
         let output = dir.appendingPathComponent("doc-\(index).pdf")
-        let task = Task {
-          try await pdf.render(html: html, to: output)
-        }
+        let task = Task { try await pdf.render(html: html, to: output) }
         tasks.append(task)
       }
 
       // Cancel half the tasks
-      for (index, task) in tasks.enumerated() where index % 2 == 0 {
-        task.cancel()
-      }
+      for (index, task) in tasks.enumerated() where index % 2 == 0 { task.cancel() }
 
       // Wait for all tasks to complete (either successfully or with cancellation)
       var successCount = 0
@@ -112,9 +95,7 @@ struct CancellationTests {
         do {
           _ = try await task.value
           successCount += 1
-        } catch {
-          cancelCount += 1
-        }
+        } catch { cancelCount += 1 }
       }
 
       // Some tasks should have succeeded
@@ -128,23 +109,17 @@ struct CancellationTests {
   @Test(
     "Pool remains healthy after cancellations",
     .dependency(\.pdf.render.configuration.concurrency, 2)
-  )
-  func testPoolHealthAfterCancellation() async throws {
+  ) func testPoolHealthAfterCancellation() async throws {
     try await withTemporaryDirectory { dir in
       // First batch: create and cancel many tasks
       for i in 1...20 {
         let output = dir.appendingPathComponent("batch1-\(i).pdf")
         let task = Task {
-          try await pdf.render(
-            html: "<html><body>Batch 1 Doc \(i)</body></html>",
-            to: output
-          )
+          try await pdf.render(html: "<html><body>Batch 1 Doc \(i)</body></html>", to: output)
         }
 
         // Cancel every other task
-        if i % 2 == 0 {
-          task.cancel()
-        }
+        if i % 2 == 0 { task.cancel() }
 
         _ = try? await task.value
       }
@@ -159,26 +134,19 @@ struct CancellationTests {
         let output = dir.appendingPathComponent("batch2-\(i).pdf")
 
         do {
-          _ = try await pdf.render(
-            html: "<html><body>Batch 2 Doc \(i)</body></html>",
-            to: output
-          )
+          _ = try await pdf.render(html: "<html><body>Batch 2 Doc \(i)</body></html>", to: output)
           secondBatchSuccess += 1
-        } catch {
-          Issue.record("Pool should be healthy after cancellations: \(error)")
-        }
+        } catch { Issue.record("Pool should be healthy after cancellations: \(error)") }
       }
 
       #expect(secondBatchSuccess == 10, "All second batch tasks should succeed")
     }
   }
 
-  @Test("Batch stream stops when task is cancelled")
-  func testBatchStreamCancellation() async throws {
+  @Test("Batch stream stops when task is cancelled") func testBatchStreamCancellation() async throws
+  {
     await withTemporaryDirectory { dir in
-      let html = (1...20).map { i in
-        "<html><body><h1>Document \(i)</h1></body></html>"
-      }
+      let html = (1...20).map { i in "<html><body><h1>Document \(i)</h1></body></html>" }
 
       let documents = html.enumerated().map { (index, html) in
         PDF.Document(html: html, title: "doc-\(index)", in: dir)
@@ -205,8 +173,7 @@ struct CancellationTests {
     }
   }
 
-  @Test("Document timeout does not leak WebView")
-  func testTimeoutNoLeak() async throws {
+  @Test("Document timeout does not leak WebView") func testTimeoutNoLeak() async throws {
     try await withTemporaryDirectory { dir in
       // Configure very short timeout
       try await withDependencies {

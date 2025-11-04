@@ -22,24 +22,19 @@
     )
   }
 
-  extension PDF.Render.Client: DependencyKey {
-    public static let liveValue: Self = .iOS
-  }
+  extension PDF.Render.Client: DependencyKey { public static let liveValue: Self = .iOS }
 
   extension PDF.Render.Client {
     /// iOS-specific implementation using UIPrintPageRenderer
-    public static let iOS = PDF.Render.Client(
-      documents: { documents in
-        @Dependency(\.pdf.render.configuration) var config
-        return try await renderDocumentsInternal(documents, config: config)
-      }
-    )
+    public static let iOS = PDF.Render.Client(documents: { documents in
+      @Dependency(\.pdf.render.configuration) var config
+      return try await renderDocumentsInternal(documents, config: config)
+    })
   }
 
   // MARK: - Internal Implementation
 
-  @MainActor
-  private func renderToDataWithFormatter(
+  @MainActor private func renderToDataWithFormatter(
     _ printFormatter: UIPrintFormatter,
     config: PDF.Configuration
   ) async throws -> Data {
@@ -73,8 +68,7 @@
     return pdfData as Data
   }
 
-  @MainActor
-  extension PDF.Document {
+  @MainActor extension PDF.Document {
     func renderInternal(config: PDF.Configuration) async throws -> URL {
       let parentDirectory = self.destination.deletingLastPathComponent()
 
@@ -93,8 +87,8 @@
       }
     }
 
-    @MainActor
-    private func renderWithPrintFormatter(config: PDF.Configuration) async throws -> URL {
+    @MainActor private func renderWithPrintFormatter(config: PDF.Configuration) async throws -> URL
+    {
       // Convert bytes to String for UIMarkupTextPrintFormatter (only accepts String)
       let html = String(decoding: self.html, as: UTF8.self)
       let printFormatter = UIMarkupTextPrintFormatter(markupText: html)
@@ -103,8 +97,7 @@
       return self.destination
     }
 
-    @MainActor
-    private func renderWithWebView(config: PDF.Configuration) async throws -> URL {
+    @MainActor private func renderWithWebView(config: PDF.Configuration) async throws -> URL {
       @Dependency(\.webViewPool) var webViewPool
 
       let pool = try await webViewPool.pool
@@ -117,10 +110,7 @@
         timeout: .seconds(config.webViewAcquisitionTimeout.components.seconds)
       ) { @Sendable @MainActor resource in
         let webView = resource.webView
-        let renderer = DocumentWKRenderer(
-          document: self,
-          configuration: config
-        )
+        let renderer = DocumentWKRenderer(document: self, configuration: config)
 
         try await renderer.render(using: webView, documentTimeout: config.documentTimeout)
         return self.destination
@@ -217,10 +207,8 @@
           logger.error(
             "Batch rendering failed",
             metadata: [
-              "completed": "\(completedCount)",
-              "total": "\(documentsArray.count)",
-              "error": "\(error)",
-              "error_type": "\(type(of: error))",
+              "completed": "\(completedCount)", "total": "\(documentsArray.count)",
+              "error": "\(error)", "error_type": "\(type(of: error))",
             ]
           )
           continuation.finish(throwing: error)
@@ -234,14 +222,12 @@
 
   /// Extract page count and dimensions from PDF file using Core Graphics (faster than PDFKit)
   /// Thread-safe, can run off main actor. Avoids PDFDocument allocation/caching overhead.
-  private func extractPageInfo(from url: URL, fallbackSize: CGSize) -> (
-    pageCount: Int, dimensions: [CGSize]
-  ) {
-    guard let provider = CGDataProvider(url: url as CFURL),
-      let pdfDoc = CGPDFDocument(provider)
-    else {
-      return (1, [fallbackSize])
-    }
+  private func extractPageInfo(
+    from url: URL,
+    fallbackSize: CGSize
+  ) -> (pageCount: Int, dimensions: [CGSize]) {
+    guard let provider = CGDataProvider(url: url as CFURL), let pdfDoc = CGPDFDocument(provider)
+    else { return (1, [fallbackSize]) }
 
     let pageCount = pdfDoc.numberOfPages
     var dimensions: [CGSize] = []
@@ -254,17 +240,14 @@
     }
 
     // Fallback if no pages found
-    if dimensions.isEmpty {
-      return (1, [fallbackSize])
-    }
+    if dimensions.isEmpty { return (1, [fallbackSize]) }
 
     return (pageCount, dimensions)
   }
 
   // MARK: - WebView Renderer for Images
 
-  @MainActor
-  private class DocumentWKRenderer: NSObject, WKNavigationDelegate {
+  @MainActor private class DocumentWKRenderer: NSObject, WKNavigationDelegate {
     private var document: PDF.Document
     private var configuration: PDF.Configuration
 
@@ -319,9 +302,7 @@
             do {
               try await Task.sleep(for: timeout)
 
-              guard let self = self,
-                let continuation = self.continuation
-              else { return }
+              guard let self = self, let continuation = self.continuation else { return }
 
               self.continuation = nil
               let timeoutError = PrintingError.webViewRenderingTimeout(
@@ -333,10 +314,7 @@
                 @Dependency(\.logger) var logger
                 logger.error(
                   "Unexpected error in timeout task",
-                  metadata: [
-                    "error": "\(error)",
-                    "error_type": "\(type(of: error))",
-                  ]
+                  metadata: ["error": "\(error)", "error_type": "\(type(of: error))"]
                 )
               }
             }
@@ -358,9 +336,7 @@
           let data = try await renderToDataWithFormatter(printFormatter, config: configuration)
           try writeAtomically(data, to: document.destination)
           continuation.resume(returning: ())
-        } catch {
-          continuation.resume(throwing: error)
-        }
+        } catch { continuation.resume(throwing: error) }
 
         webView.navigationDelegate = nil
       }
@@ -412,9 +388,7 @@
             break
           }
         }
-        if matches {
-          return true
-        }
+        if matches { return true }
       }
       return false
     }

@@ -30,12 +30,7 @@ extension PDF.Render {
     /// How long was spent attempting to render before failure
     public let duration: Duration
 
-    package init(
-      document: PDF.Document,
-      index: Int,
-      error: Error,
-      duration: Duration
-    ) {
+    package init(document: PDF.Document, index: Int, error: Error, duration: Duration) {
       self.document = document
       self.index = index
       self.error = error
@@ -49,11 +44,7 @@ extension PDF.Render.FailedDocument: LocalizedError {
     "Failed to render document \(index + 1) ('\(document.destination.lastPathComponent)'): \(error.localizedDescription)"
   }
 
-  public var failureReason: String? {
-    (error as? LocalizedError)?.failureReason
-  }
+  public var failureReason: String? { (error as? LocalizedError)?.failureReason }
 
-  public var recoverySuggestion: String? {
-    (error as? LocalizedError)?.recoverySuggestion
-  }
+  public var recoverySuggestion: String? { (error as? LocalizedError)?.recoverySuggestion }
 }

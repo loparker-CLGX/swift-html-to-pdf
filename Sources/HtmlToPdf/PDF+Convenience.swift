@@ -41,10 +41,7 @@ import Foundation
     ///   - destination: File URL for the PDF
     /// - Returns: URL of the generated PDF
     /// - Throws: Rendering errors
-    public func render(
-      html: some HTML,
-      to destination: URL
-    ) async throws -> URL {
+    public func render(html: some HTML, to destination: URL) async throws -> URL {
       let document = PDF.Document(html: html, destination: destination)
       return try await render.document(document)
     }
@@ -63,9 +60,7 @@ import Foundation
     /// - Parameter html: Type-safe HTML content
     /// - Returns: PDF data
     /// - Throws: Rendering errors
-    public func render(
-      html: some HTML
-    ) async throws -> Data {
+    public func render(html: some HTML) async throws -> Data {
       let html = String(decoding: html.render(), as: UTF8.self)
       return try await render.data(for: html)
     }

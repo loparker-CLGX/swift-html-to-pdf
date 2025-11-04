@@ -27,17 +27,11 @@ extension PDF.Render: TestDependencyKey {
       #endif
     }
 
-    return PDF.Render(
-      client: testClient,
-      configuration: .default,
-      metrics: .testValue
-    )
+    return PDF.Render(client: testClient, configuration: .default, metrics: .testValue)
   }
 }
 
-extension PDF.Render.Client: TestDependencyKey {
-  public static let testValue = PDF.Render.Client()
-}
+extension PDF.Render.Client: TestDependencyKey { public static let testValue = PDF.Render.Client() }
 
 extension PDF.Render.Metrics: TestDependencyKey {
   /// Test value that silently ignores all metric operations (no-op)

@@ -19,30 +19,19 @@ import Testing
 // import struct LoggingExtras.FileLogHandler  // Not available yet
 @testable import HtmlToPdfLive
 
-extension Tag {
-  @Tag static var stress: Self
-}
+extension Tag { @Tag static var stress: Self }
 
-@Suite(
-  "Stress Tests",
-  .serialized,
-  .tags(.stress)
-)
-struct StressTests {
+@Suite("Stress Tests", .serialized, .tags(.stress)) struct StressTests {
 
   // MARK: - Extreme Load Tests
 
-  @Test("Minimal test - just bootstrap metrics")
-  func testMinimal() async throws {
+  @Test("Minimal test - just bootstrap metrics") func testMinimal() async throws {
     print("Test works - metrics system bootstrapped")
   }
 
-  @Test(
-    "Generate 1,000,000 PDFs",
-    .disabled(),
-    .timeLimit(.minutes(120))
-  )
-  func test1MPDFs() async throws {
+  @Test("Generate 1,000,000 PDFs", .disabled(), .timeLimit(.minutes(120))) func test1MPDFs()
+    async throws
+  {
     // Setup file logging
     let testsDir = URL(fileURLWithPath: #filePath).deletingLastPathComponent()
     let logsDir = testsDir.appendingPathComponent("StressTestLogs")
@@ -81,9 +70,7 @@ struct StressTests {
         logger.info("\(message)", metadata: metadata)
 
         // Write to file
-        if let data = logLine.data(using: .utf8) {
-          try? fileHandle.write(contentsOf: data)
-        }
+        if let data = logLine.data(using: .utf8) { try? fileHandle.write(contentsOf: data) }
       }
 
       // Skip @Dependency(\.pdf) and use the render client directly
@@ -187,12 +174,9 @@ struct StressTests {
     }
   }
 
-  @Test(
-    "Generate 200,000 PDFs",
-    .disabled(),
-    .timeLimit(.minutes(30))
-  )
-  func test100kPDFs() async throws {
+  @Test("Generate 200,000 PDFs", .disabled(), .timeLimit(.minutes(30))) func test100kPDFs()
+    async throws
+  {
     @Dependency(\.pdf) var pdf
     try await withDependencies {
       $0.pdf.render.configuration.concurrency = .automatic
@@ -298,11 +282,7 @@ struct StressTests {
     }
   }
 
-  @Test(
-    "Generate 1,000 PDFs with complex HTML",
-    .timeLimit(.minutes(5)),
-    .disabled(),
-  )
+  @Test("Generate 1,000 PDFs with complex HTML", .timeLimit(.minutes(5)), .disabled(), )
   func test1kComplexPDFs() async throws {
     @Dependency(\.pdf) var pdf
     try await withDependencies {
@@ -376,10 +356,7 @@ struct StressTests {
     }
   }
 
-  @Test(
-    "Sustained load test - 5 minutes continuous generation",
-    .disabled()
-  )
+  @Test("Sustained load test - 5 minutes continuous generation", .disabled())
   func testSustainedLoad() async throws {
     @Dependency(\.pdf) var pdf
     try await withTemporaryDirectory { output in
@@ -417,9 +394,7 @@ struct StressTests {
 
                 // Brief pause to simulate realistic workload
                 try? await Task.sleep(for: .milliseconds(100))
-              } catch {
-                print("Error in batch \(batch): \(error)")
-              }
+              } catch { print("Error in batch \(batch): \(error)") }
             }
           }
         }

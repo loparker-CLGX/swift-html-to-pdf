@@ -15,9 +15,7 @@ private actor CSSInjectionCache {
   private var accessOrder: [Int] = []
   private let maxEntries = 100
 
-  func get(key: Int) -> ContiguousArray<UInt8>? {
-    cache[key]
-  }
+  func get(key: Int) -> ContiguousArray<UInt8>? { cache[key] }
 
   func set(key: Int, value: ContiguousArray<UInt8>) {
     // Evict oldest entry if at capacity
@@ -110,9 +108,7 @@ extension PDF {
 
     public init(html: ContiguousArray<UInt8>, title: String, in directory: URL) {
       self.htmlBytes = html
-      self.destination =
-        directory
-        .appendingPathComponent(title.replacingSlashesWithDivisionSlash())
+      self.destination = directory.appendingPathComponent(title.replacingSlashesWithDivisionSlash())
         .appendingPathExtension("pdf")
     }
 
@@ -124,9 +120,7 @@ extension PDF {
 
     public init(html: String, title: String, in directory: URL) {
       self.htmlBytes = ContiguousArray(html.utf8)
-      self.destination =
-        directory
-        .appendingPathComponent(title.replacingSlashesWithDivisionSlash())
+      self.destination = directory.appendingPathComponent(title.replacingSlashesWithDivisionSlash())
         .appendingPathExtension("pdf")
     }
 
@@ -142,17 +136,17 @@ extension PDF {
 extension String {
   func replacingSlashesWithDivisionSlash() -> String {
     let divisionSlash = "\u{2215}"  // Unicode for Division Slash (∕)
-    return
-      self
-      .replacingOccurrences(of: "/", with: divisionSlash)
-      .replacingOccurrences(of: ":", with: "-")  // Colon not allowed in filenames
-      .replacingOccurrences(of: "?", with: "")  // Question mark not allowed
-      .replacingOccurrences(of: "*", with: "-")  // Asterisk not allowed
-      .replacingOccurrences(of: "<", with: "")  // Less-than not allowed
-      .replacingOccurrences(of: ">", with: "")  // Greater-than not allowed
-      .replacingOccurrences(of: "|", with: "-")  // Pipe not allowed
-      .replacingOccurrences(of: "\"", with: "")  // Quote not allowed
-      .replacingOccurrences(of: "\\", with: divisionSlash)  // Backslash treated like forward slash
+    return self.replacingOccurrences(of: "/", with: divisionSlash).replacingOccurrences(
+      of: ":",
+      with: "-"
+    )  // Colon not allowed in filenames
+    .replacingOccurrences(of: "?", with: "")  // Question mark not allowed
+    .replacingOccurrences(of: "*", with: "-")  // Asterisk not allowed
+    .replacingOccurrences(of: "<", with: "")  // Less-than not allowed
+    .replacingOccurrences(of: ">", with: "")  // Greater-than not allowed
+    .replacingOccurrences(of: "|", with: "-")  // Pipe not allowed
+    .replacingOccurrences(of: "\"", with: "")  // Quote not allowed
+    .replacingOccurrences(of: "\\", with: divisionSlash)  // Backslash treated like forward slash
   }
 }
 
@@ -168,9 +162,7 @@ extension ContiguousArray where Element == UInt8 {
     let cacheKey = generateCacheKey(html: self, css: cssBytes)
 
     // Check cache first
-    if let cached = await cssInjectionCache.get(key: cacheKey) {
-      return cached
-    }
+    if let cached = await cssInjectionCache.get(key: cacheKey) { return cached }
 
     // Cache miss - perform injection
     let result = performCSSInjection(cssBytes)
@@ -240,17 +232,13 @@ extension ContiguousArray where Element == UInt8 {
   }
 
   /// Convert to Data for WKWebView loading
-  public func toData() -> Data {
-    Data(self)
-  }
+  public func toData() -> Data { Data(self) }
 }
 
 // MARK: - Byte Search Utilities
 
 extension ContiguousArray where Element == UInt8 {
-  enum SearchOptions {
-    case caseInsensitive
-  }
+  enum SearchOptions { case caseInsensitive }
 
   /// Find first occurrence of pattern in array
   func firstRange(of pattern: ContiguousArray<UInt8>, options: SearchOptions? = nil) -> Range<Int>?
@@ -269,9 +257,7 @@ extension ContiguousArray where Element == UInt8 {
           break
         }
       }
-      if matches {
-        return i..<(i + pattern.count)
-      }
+      if matches { return i..<(i + pattern.count) }
     }
     return nil
   }

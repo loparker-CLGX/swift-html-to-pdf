@@ -19,14 +19,12 @@ import Testing
 #endif
 
 /// Validates that all code examples in README.md compile and work correctly
-@Suite("README Code Examples Validation", .serialized)
-struct ReadmeValidationTests {
+@Suite("README Code Examples Validation", .serialized) struct ReadmeValidationTests {
   @Dependency(\.pdf) var pdf
 
   // MARK: - Basic Usage Tests (Lines 76-93)
 
-  @Test("Basic render to file - README line 83")
-  func basicRenderToFile() async throws {
+  @Test("Basic render to file - README line 83") func basicRenderToFile() async throws {
     // README example: try await pdf.render(html: "<h1>Invoice #1234</h1>", to: fileURL)
     try await withTemporaryPDF { fileURL in
       _ = try await pdf.render(html: "<h1>Invoice #1234</h1>", to: fileURL)
@@ -43,8 +41,7 @@ struct ReadmeValidationTests {
     }
   }
 
-  @Test("Render to data - README line 86")
-  func renderToData() async throws {
+  @Test("Render to data - README line 86") func renderToData() async throws {
     // README example: let pdfData = try await pdf.render(html: "<h1>Receipt</h1>")
     let pdfData = try await pdf.render(html: "<h1>Receipt</h1>")
 
@@ -55,21 +52,14 @@ struct ReadmeValidationTests {
     #expect(pdfData.starts(with: [0x25, 0x50, 0x44, 0x46]), "Should start with %PDF magic bytes")
   }
 
-  @Test("Batch processing - README lines 88-92")
-  func batchProcessing() async throws {
+  @Test("Batch processing - README lines 88-92") func batchProcessing() async throws {
     try await withTemporaryDirectory { tempDir in
       // Simulate invoices
       struct Invoice {
         let id: Int
-        var html: String {
-          "<html><body><h1>Invoice #\(id)</h1></body></html>"
-        }
+        var html: String { "<html><body><h1>Invoice #\(id)</h1></body></html>" }
       }
-      let invoices = [
-        Invoice(id: 1),
-        Invoice(id: 2),
-        Invoice(id: 3),
-      ]
+      let invoices = [Invoice(id: 1), Invoice(id: 2), Invoice(id: 3)]
 
       // README example: let html = invoices.map { "<html><body>\($0.html)</body></html>" }
       let html = invoices.map { "<html><body>\($0.html)</body></html>" }
@@ -89,14 +79,11 @@ struct ReadmeValidationTests {
 
   // MARK: - Streaming Results Test (Lines 144-149)
 
-  @Test("Streaming results iteration - README lines 145-149")
-  func streamingResultsIteration() async throws {
+  @Test("Streaming results iteration - README lines 145-149") func streamingResultsIteration()
+    async throws
+  {
     try await withTemporaryDirectory { tempDir in
-      let html = [
-        "<h1>Document 1</h1>",
-        "<h1>Document 2</h1>",
-        "<h1>Document 3</h1>",
-      ]
+      let html = ["<h1>Document 1</h1>", "<h1>Document 2</h1>", "<h1>Document 3</h1>"]
 
       var processedIndices: Set<Int> = []
       var processedCount = 0
@@ -130,8 +117,7 @@ struct ReadmeValidationTests {
     .dependency(\.pdf.render.configuration.margins, .wide),
     .dependency(\.pdf.render.configuration.paginationMode, .paginated),
     .dependency(\.pdf.render.configuration.concurrency, .automatic)
-  )
-  func customConfiguration() async throws {
+  ) func customConfiguration() async throws {
     try await withTemporaryPDF { fileURL in
       let html = "<h1>Configured Document</h1>"
 
@@ -157,8 +143,9 @@ struct ReadmeValidationTests {
   // MARK: - Type-Safe HTML Test (Lines 115-131)
 
   #if HTML
-    @Test("Type-safe HTML with HTMLDocument - README lines 116-131")
-    func typeSafeHTML() async throws {
+    @Test("Type-safe HTML with HTMLDocument - README lines 116-131") func typeSafeHTML()
+      async throws
+    {
       try await withTemporaryPDF { fileURL in
         // README example: struct Invoice: HTML (corrected from HTMLDocument protocol)
         struct Invoice: HTML {
@@ -191,8 +178,7 @@ struct ReadmeValidationTests {
 
   // MARK: - Quick Start Example (Lines 20-23)
 
-  @Test("Quick start one-liner - README lines 21-22")
-  func quickStartOneLiner() async throws {
+  @Test("Quick start one-liner - README lines 21-22") func quickStartOneLiner() async throws {
     try await withTemporaryPDF { fileURL in
       // README example (the one-liner that demonstrates ease of use)
       // @Dependency(\.pdf) var pdf

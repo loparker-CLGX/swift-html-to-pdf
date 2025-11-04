@@ -92,8 +92,7 @@ extension PDF.Render {
   /// - No mutable state is stored in the struct itself
   /// - All operations route through the dependency system which handles actor isolation
   /// - The underlying platform implementations (macOS/iOS) properly isolate WebKit operations on MainActor
-  @DependencyClient
-  public struct Client: @unchecked Sendable {
+  @DependencyClient public struct Client: @unchecked Sendable {
 
     // MARK: - Primitive Operations
 
@@ -109,10 +108,9 @@ extension PDF.Render {
     /// - Parameter documents: Documents to render (any sequence)
     /// - Returns: Stream of results as PDFs are generated
     /// - Throws: Rendering errors (stops entire batch)
-    @DependencyEndpoint
-    public var documents:
-      @Sendable (
-        _ documents: any Sequence<PDF.Document>
-      ) async throws -> AsyncThrowingStream<PDF.Render.Result, Error>
+    @DependencyEndpoint public var documents:
+      @Sendable (_ documents: any Sequence<PDF.Document>) async throws -> AsyncThrowingStream<
+        PDF.Render.Result, Error
+      >
   }
 }

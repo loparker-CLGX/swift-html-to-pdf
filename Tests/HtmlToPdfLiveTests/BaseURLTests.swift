@@ -13,14 +13,12 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "BaseURL Tests"
-)
-struct BaseURLTests {
+@Suite("BaseURL Tests") struct BaseURLTests {
   @Dependency(\.pdf) var pdf
 
-  @Test("BaseURL is set correctly via withBaseURL")
-  func testWithBaseURLSetsConfiguration() async throws {
+  @Test("BaseURL is set correctly via withBaseURL") func testWithBaseURLSetsConfiguration()
+    async throws
+  {
     let testURL = URL(fileURLWithPath: "/test/assets")
 
     let configured = pdf.withBaseURL(testURL)
@@ -28,8 +26,9 @@ struct BaseURLTests {
     #expect(configured.render.configuration.baseURL == testURL)
   }
 
-  @Test("BaseURL nil clears configuration")
-  func testWithBaseURLNilClearsConfiguration() async throws {
+  @Test("BaseURL nil clears configuration") func testWithBaseURLNilClearsConfiguration()
+    async throws
+  {
     // First set a baseURL
     let configured = pdf.withBaseURL(URL(fileURLWithPath: "/test"))
 
@@ -39,24 +38,19 @@ struct BaseURLTests {
     #expect(cleared.render.configuration.baseURL == nil)
   }
 
-  @Test("withBaseURL allows fluent chaining")
-  func testWithBaseURLFluentAPI() async throws {
+  @Test("withBaseURL allows fluent chaining") func testWithBaseURLFluentAPI() async throws {
     try await withTemporaryPDF { output in
       let baseURL = URL(fileURLWithPath: "/assets")
 
       let html = "<html><body><h1>Test</h1></body></html>"
 
-      let result =
-        try await pdf
-        .withBaseURL(baseURL)
-        .render(html: html, to: output)
+      let result = try await pdf.withBaseURL(baseURL).render(html: html, to: output)
 
       #expect(FileManager.default.fileExists(atPath: result.path))
     }
   }
 
-  @Test("BaseURL is used during rendering (macOS)")
-  func testBaseURLUsedInRendering() async throws {
+  @Test("BaseURL is used during rendering (macOS)") func testBaseURLUsedInRendering() async throws {
     // Note: This test verifies the configuration is passed through
     // Actual asset loading would require test assets on disk
 
@@ -67,10 +61,7 @@ struct BaseURLTests {
       let html = #"<html><body><img src="test.png"></body></html>"#
 
       // Should not throw - baseURL is configured even if asset doesn't exist
-      let result =
-        try await pdf
-        .withBaseURL(baseURL)
-        .render(html: html, to: output)
+      let result = try await pdf.withBaseURL(baseURL).render(html: html, to: output)
 
       #expect(FileManager.default.fileExists(atPath: result.path))
     }

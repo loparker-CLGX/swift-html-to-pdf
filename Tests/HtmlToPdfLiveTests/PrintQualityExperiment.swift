@@ -14,26 +14,19 @@ import Testing
 @Suite(
   "Print Quality Experiments",
   .disabled("Run manually: swift test --filter PrintQualityExperiments")
-)
-struct PrintQualityExperiments {
+) struct PrintQualityExperiments {
   @Dependency(\.pdf) var pdf
 
   @Test(
     "Compare different bullet character rendering quality",
     .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-  )
-  func compareBulletCharacters() async throws {
+  ) func compareBulletCharacters() async throws {
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
 
     let experiments = [
-      ("Unicode Bullet (•)", "•"),
-      ("HTML Entity (&middot;)", "&middot;"),
-      ("HTML Entity (&bull;)", "&bull;"),
-      ("Hyphen (-)", "-"),
-      ("Pipe (|)", "|"),
-      ("Em Dash (—)", "—"),
-      ("En Dash (–)", "–"),
-      ("Dot Operator (⋅)", "⋅"),
+      ("Unicode Bullet (•)", "•"), ("HTML Entity (&middot;)", "&middot;"),
+      ("HTML Entity (&bull;)", "&bull;"), ("Hyphen (-)", "-"), ("Pipe (|)", "|"),
+      ("Em Dash (—)", "—"), ("En Dash (–)", "–"), ("Dot Operator (⋅)", "⋅"),
     ]
 
     for (name, character) in experiments {
@@ -187,8 +180,7 @@ struct PrintQualityExperiments {
   @Test(
     "Test advanced CSS print optimizations",
     .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-  )
-  func advancedPrintOptimizations() async throws {
+  ) func advancedPrintOptimizations() async throws {
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
 
     let html = """
@@ -322,8 +314,7 @@ struct PrintQualityExperiments {
   @Test(
     "Test SVG-based separators for perfect vector quality",
     .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-  )
-  func svgSeparators() async throws {
+  ) func svgSeparators() async throws {
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
 
     let html = """

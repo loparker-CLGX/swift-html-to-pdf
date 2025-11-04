@@ -28,10 +28,7 @@ extension PDF {
   ///   - destination: File URL for the PDF
   /// - Returns: URL of the generated PDF
   /// - Throws: Rendering errors
-  public func render(
-    html: String,
-    to destination: URL
-  ) async throws -> URL {
+  public func render(html: String, to destination: URL) async throws -> URL {
     try await render.html(html, to: destination)
   }
 
@@ -49,9 +46,7 @@ extension PDF {
   /// - Parameter document: Document to render
   /// - Returns: URL of the generated PDF
   /// - Throws: Rendering errors
-  public func render(
-    document: PDF.Document
-  ) async throws -> URL {
+  public func render(document: PDF.Document) async throws -> URL {
     try await render.document(document)
   }
 
@@ -69,11 +64,7 @@ extension PDF {
   /// - Parameter html: HTML content to render
   /// - Returns: PDF data
   /// - Throws: Rendering errors
-  public func render(
-    html: String
-  ) async throws -> Data {
-    try await render.data(for: html)
-  }
+  public func render(html: String) async throws -> Data { try await render.data(for: html) }
 
   // MARK: - Batch Operations
 

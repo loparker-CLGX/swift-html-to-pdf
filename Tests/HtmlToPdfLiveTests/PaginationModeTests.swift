@@ -12,17 +12,13 @@ import HtmlToPdfLive
 import PDFKit
 import Testing
 
-@Suite(
-  "Pagination Mode Tests"
-)
-struct PaginationModeTests {
+@Suite("Pagination Mode Tests") struct PaginationModeTests {
   @Dependency(\.pdf) var pdf
 
   @Test(
     "Paginated mode creates multiple pages for long content",
     .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-  )
-  func paginatedModeLongContent() async throws {
+  ) func paginatedModeLongContent() async throws {
 
     let tempDir = FileManager.default.temporaryDirectory
     let output = tempDir.appendingPathComponent("test-paginated.pdf")
@@ -62,8 +58,7 @@ struct PaginationModeTests {
   @Test(
     "Continuous mode creates single tall page",
     .dependency(\.pdf.render.configuration.paginationMode, .continuous)
-  )
-  func continuousModeLongContent() async throws {
+  ) func continuousModeLongContent() async throws {
 
     let tempDir = FileManager.default.temporaryDirectory
     let output = tempDir.appendingPathComponent("test-continuous.pdf")
@@ -123,8 +118,7 @@ struct PaginationModeTests {
   @Test(
     "Automatic mode with short content uses continuous",
     .dependency(\.pdf.render.configuration.paginationMode, .automatic())
-  )
-  func automaticModeShortContent() async throws {
+  ) func automaticModeShortContent() async throws {
 
     let tempDir = FileManager.default.temporaryDirectory
     let output = tempDir.appendingPathComponent("test-auto-short.pdf")
@@ -158,8 +152,7 @@ struct PaginationModeTests {
       \.pdf.render.configuration.paginationMode,
       .automatic(heuristic: .contentLength(threshold: 1.5))
     )
-  )
-  func automaticModeLongContent() async throws {
+  ) func automaticModeLongContent() async throws {
 
     let tempDir = FileManager.default.temporaryDirectory
     let output = tempDir.appendingPathComponent("test-auto-long.pdf")
@@ -198,8 +191,7 @@ struct PaginationModeTests {
     }
   }
 
-  @Test("Margins work in both modes")
-  func marginsInBothModes() async throws {
+  @Test("Margins work in both modes") func marginsInBothModes() async throws {
     let tempDir = FileManager.default.temporaryDirectory
 
     // Test paginated mode with margins

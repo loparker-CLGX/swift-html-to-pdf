@@ -11,18 +11,20 @@ disabled_rules:
   - explicit_type_interface  # Too strict - Swift type inference is good
   - explicit_init  # Unnecessary verbosity
   - identifier_name  # Allow short names like 'i' in loops
+  - opening_brace  # Handled by swift-format
+  - closure_parameter_position  # Handled by swift-format
+  - trailing_comma  # Handled by swift-format
+  - large_tuple  # Sometimes necessary for complex operations
+  - type_name  # Allow iOS-prefixed types like iOSPrintFormatterRenderer
 
 # Enabled Opt-In Rules (helpful additions)
 opt_in_rules:
-  - empty_count  # Prefer isEmpty over count == 0
   - contains_over_first_not_nil  # Prefer contains over first != nil
   - first_where  # Prefer first(where:) over filter().first
   - sorted_first_last  # Prefer min/max over sorted().first/last
-  - vertical_whitespace_closing_braces  # Consistent brace spacing
-  - vertical_whitespace_opening_braces  # Consistent brace spacing
   - unneeded_parentheses_in_closure_argument  # Clean closure syntax
   - toggle_bool  # Prefer toggle() over = !
-  - yoda_condition_rule  # Consistent comparison order
+  - yoda_condition  # Consistent comparison order
 
 # Paths
 included:

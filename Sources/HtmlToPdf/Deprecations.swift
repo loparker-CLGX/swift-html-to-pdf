@@ -32,9 +32,7 @@ import HtmlToPdfLive
           try await pdf.render(html: html, to: url)
       }
     """
-)
-@_documentation(visibility: internal)
-public typealias PDFConfiguration = OldPDFConfiguration
+) @_documentation(visibility: internal) public typealias PDFConfiguration = OldPDFConfiguration
 
 /// Old `PrintingConfiguration` type - use `PDF.Configuration` instead
 @available(
@@ -55,9 +53,8 @@ public typealias PDFConfiguration = OldPDFConfiguration
           try await pdf.render(html: html, to: url)
       }
     """
-)
-@_documentation(visibility: internal)
-public typealias PrintingConfiguration = OldPrintingConfiguration
+) @_documentation(visibility: internal) public typealias PrintingConfiguration =
+  OldPrintingConfiguration
 
 /// Old `Document` type - use `PDF.Document` instead
 @available(
@@ -76,9 +73,7 @@ public typealias PrintingConfiguration = OldPrintingConfiguration
       let doc = PDF.Document(html: html.toUTF8Bytes(), destination: url)
       try await pdf.render.client.documents([doc])
     """
-)
-@_documentation(visibility: internal)
-public typealias Document = OldDocument
+) @_documentation(visibility: internal) public typealias Document = OldDocument
 
 // MARK: - Deprecated String Extensions
 
@@ -105,10 +100,7 @@ extension String {
 
       See MIGRATION.md for detailed migration guide.
       """
-  )
-  @_documentation(visibility: internal)
-  @MainActor
-  public func print(
+  ) @_documentation(visibility: internal) @MainActor public func print(
     to fileUrl: URL,
     configuration: PDFConfiguration = .a4,
     printingConfiguration: PrintingConfiguration = .default,
@@ -146,19 +138,14 @@ extension String {
 
       Construct the full URL yourself: directory.appendingPathComponent(title).appendingPathExtension("pdf")
       """
-  )
-  @_documentation(visibility: internal)
-  @MainActor
-  public func print(
+  ) @_documentation(visibility: internal) @MainActor public func print(
     title: String,
     to directory: URL,
     configuration: PDFConfiguration = .a4,
     printingConfiguration: PrintingConfiguration = .default,
     createDirectories: Bool = true
   ) async throws {
-    let fileUrl =
-      directory
-      .appendingPathComponent(title.replacingSlashesWithDivisionSlash())
+    let fileUrl = directory.appendingPathComponent(title.replacingSlashesWithDivisionSlash())
       .appendingPathExtension("pdf")
 
     try await self.print(
@@ -192,9 +179,7 @@ extension Sequence<String> {
 
       See MIGRATION.md for detailed migration guide.
       """
-  )
-  @_documentation(visibility: internal)
-  public func print(
+  ) @_documentation(visibility: internal) public func print(
     to directory: URL,
     configuration: PDFConfiguration = .a4,
     printingConfiguration: PrintingConfiguration = .default,
@@ -222,8 +207,7 @@ extension Sequence<String> {
 
 // MARK: - Old Configuration Types (for backward compatibility)
 
-@_documentation(visibility: internal)
-public struct OldPDFConfiguration: Sendable {
+@_documentation(visibility: internal) public struct OldPDFConfiguration: Sendable {
   public let paperSize: CGSize
   public let margins: EdgeInsets
   public let baseURL: URL?
@@ -253,8 +237,7 @@ extension OldPDFConfiguration {
   )
 }
 
-@_documentation(visibility: internal)
-public struct OldPrintingConfiguration: Sendable {
+@_documentation(visibility: internal) public struct OldPrintingConfiguration: Sendable {
   public let maxConcurrentOperations: Int?
   public let documentTimeout: TimeInterval?
   public let batchTimeout: TimeInterval?
@@ -272,26 +255,17 @@ public struct OldPrintingConfiguration: Sendable {
     self.webViewAcquisitionTimeout = webViewAcquisitionTimeout
   }
 
-  public static var `default`: OldPrintingConfiguration {
-    OldPrintingConfiguration()
-  }
+  public static var `default`: OldPrintingConfiguration { OldPrintingConfiguration() }
 
   func apply(to config: inout PDF.Configuration) {
-    if let maxConcurrent = maxConcurrentOperations {
-      config.concurrency = .fixed(maxConcurrent)
-    }
-    if let docTimeout = documentTimeout {
-      config.documentTimeout = .seconds(Int64(docTimeout))
-    }
-    if let batchTimeout = batchTimeout {
-      config.batchTimeout = .seconds(Int64(batchTimeout))
-    }
+    if let maxConcurrent = maxConcurrentOperations { config.concurrency = .fixed(maxConcurrent) }
+    if let docTimeout = documentTimeout { config.documentTimeout = .seconds(Int64(docTimeout)) }
+    if let batchTimeout = batchTimeout { config.batchTimeout = .seconds(Int64(batchTimeout)) }
     config.webViewAcquisitionTimeout = .seconds(Int64(webViewAcquisitionTimeout))
   }
 }
 
-@_documentation(visibility: internal)
-public struct OldDocument: Sendable {
+@_documentation(visibility: internal) public struct OldDocument: Sendable {
   let fileUrl: URL
   let html: String
 

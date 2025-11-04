@@ -16,11 +16,10 @@ import Testing
 @Suite(
   "Visual Verification (Manual)",
   .disabled("Run manually: swift test --filter VisualVerificationTests")
-)
-struct VisualVerificationTests {
+) struct VisualVerificationTests {
 
-  @Test("Generate rich PDF for manual verification")
-  func generateRichVerificationPDF() async throws {
+  @Test("Generate rich PDF for manual verification") func generateRichVerificationPDF() async throws
+  {
     @Dependency(\.pdf) var pdf
 
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
@@ -200,8 +199,7 @@ struct VisualVerificationTests {
   @Test(
     "Generate multi-page PDF with explicit page breaks",
     .dependency(\.pdf.render.configuration, .multiPage)
-  )
-  func generateMultiPagePDF() async throws {
+  ) func generateMultiPagePDF() async throws {
     @Dependency(\.pdf) var pdf
 
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
@@ -456,8 +454,7 @@ struct VisualVerificationTests {
   @Test(
     "Generate PDF with natural content flow (Paginated Mode)",
     .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-  )
-  func generateNaturalMultiPagePDF() async throws {
+  ) func generateNaturalMultiPagePDF() async throws {
     @Dependency(\.pdf) var pdf
 
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
@@ -612,8 +609,7 @@ struct VisualVerificationTests {
   @Test(
     "Generate PDF in continuous mode for quality comparison",
     .dependency(\.pdf.render.configuration.paginationMode, .continuous)
-  )
-  func generateContinuousModePDF() async throws {
+  ) func generateContinuousModePDF() async throws {
     @Dependency(\.pdf) var pdf
 
     let desktop = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]

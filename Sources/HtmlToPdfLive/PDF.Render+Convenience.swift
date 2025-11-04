@@ -31,9 +31,7 @@ extension PDF.Render {
   /// - Parameter document: Document to render
   /// - Returns: URL of the generated PDF
   /// - Throws: Rendering errors
-  public func document(
-    _ document: PDF.Document
-  ) async throws -> URL {
+  public func document(_ document: PDF.Document) async throws -> URL {
     try await client.document(document)
   }
 
@@ -46,10 +44,7 @@ extension PDF.Render {
   ///   - destination: File URL for the PDF
   /// - Returns: URL of the generated PDF (same as destination)
   /// - Throws: Rendering errors
-  public func html(
-    _ html: String,
-    to destination: URL
-  ) async throws -> URL {
+  public func html(_ html: String, to destination: URL) async throws -> URL {
     try await client.html(html, to: destination)
   }
 
@@ -81,11 +76,7 @@ extension PDF.Render {
   /// - Parameter html: HTML content to render
   /// - Returns: PDF data
   /// - Throws: Rendering errors
-  public func data(
-    for html: String
-  ) async throws -> Data {
-    try await client.data(for: html)
-  }
+  public func data(for html: String) async throws -> Data { try await client.data(for: html) }
 
   /// Render multiple HTML strings to PDF data, yielding results as they complete
   ///
@@ -94,9 +85,6 @@ extension PDF.Render {
   /// - Parameter html: HTML strings to render (any sequence)
   /// - Returns: Stream of PDF data as each completes
   /// - Throws: Rendering errors
-  public func data(
-    for html: some Sequence<String>
-  ) async throws -> AsyncThrowingStream<Data, Error> {
-    try await client.data(for: html)
-  }
+  public func data(for html: some Sequence<String>) async throws -> AsyncThrowingStream<Data, Error>
+  { try await client.data(for: html) }
 }

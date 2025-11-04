@@ -26,33 +26,24 @@ public func withTemporaryDirectory<T>(
   id: UUID = UUID(),
   _ body: (URL) async throws -> T
 ) async rethrows -> T {
-  let output = FileManager.default.temporaryDirectory
-    .appendingPathComponent("html-to-pdf")
+  let output = FileManager.default.temporaryDirectory.appendingPathComponent("html-to-pdf")
     .appendingPathComponent(id.uuidString)
 
   try? FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
 
-  defer {
-    try? FileManager.default.removeItem(at: output)
-  }
+  defer { try? FileManager.default.removeItem(at: output) }
 
   return try await body(output)
 }
 
 /// Synchronous variant for non-async tests
-public func withTemporaryDirectory<T>(
-  id: UUID = UUID(),
-  _ body: (URL) throws -> T
-) rethrows -> T {
-  let output = FileManager.default.temporaryDirectory
-    .appendingPathComponent("html-to-pdf")
+public func withTemporaryDirectory<T>(id: UUID = UUID(), _ body: (URL) throws -> T) rethrows -> T {
+  let output = FileManager.default.temporaryDirectory.appendingPathComponent("html-to-pdf")
     .appendingPathComponent(id.uuidString)
 
   try? FileManager.default.createDirectory(at: output, withIntermediateDirectories: true)
 
-  defer {
-    try? FileManager.default.removeItem(at: output)
-  }
+  defer { try? FileManager.default.removeItem(at: output) }
 
   return try body(output)
 }
@@ -75,8 +66,7 @@ public func withTemporaryPDF<T>(
   _ body: (URL) async throws -> T
 ) async rethrows -> T {
   let dirID = UUID()
-  let outputDir = FileManager.default.temporaryDirectory
-    .appendingPathComponent("html-to-pdf")
+  let outputDir = FileManager.default.temporaryDirectory.appendingPathComponent("html-to-pdf")
     .appendingPathComponent(dirID.uuidString)
 
   // Extract test name from fileID (e.g., "HtmlToPdfTests/BasicFunctionalityTests.swift")
@@ -87,9 +77,7 @@ public func withTemporaryPDF<T>(
 
   try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
 
-  defer {
-    try? FileManager.default.removeItem(at: outputDir)
-  }
+  defer { try? FileManager.default.removeItem(at: outputDir) }
 
   return try await body(output)
 }
@@ -101,8 +89,7 @@ public func withTemporaryPDF<T>(
   _ body: (URL) throws -> T
 ) rethrows -> T {
   let dirID = UUID()
-  let outputDir = FileManager.default.temporaryDirectory
-    .appendingPathComponent("html-to-pdf")
+  let outputDir = FileManager.default.temporaryDirectory.appendingPathComponent("html-to-pdf")
     .appendingPathComponent(dirID.uuidString)
 
   // Extract test name from fileID
@@ -113,9 +100,7 @@ public func withTemporaryPDF<T>(
 
   try? FileManager.default.createDirectory(at: outputDir, withIntermediateDirectories: true)
 
-  defer {
-    try? FileManager.default.removeItem(at: outputDir)
-  }
+  defer { try? FileManager.default.removeItem(at: outputDir) }
 
   return try body(output)
 }
@@ -135,10 +120,7 @@ public func withTemporaryPDF<T>(
 /// }
 /// ```
 extension URL {
-  public func pdfPath(
-    fileID: String = #fileID,
-    line: Int = #line
-  ) -> URL {
+  public func pdfPath(fileID: String = #fileID, line: Int = #line) -> URL {
     // Extract test name from fileID (e.g., "HtmlToPdfTests/BasicFunctionalityTests.swift")
     let fileName =
       fileID.split(separator: "/").last?.replacingOccurrences(of: ".swift", with: "") ?? "test"
@@ -160,9 +142,7 @@ public func cleanupAllTestOutputs() {
   do {
     let subdirs = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
 
-    for subdir in subdirs {
-      try? fm.removeItem(at: subdir)
-    }
+    for subdir in subdirs { try? fm.removeItem(at: subdir) }
 
     try? fm.removeItem(at: tempDir)
   } catch {

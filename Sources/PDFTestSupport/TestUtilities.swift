@@ -13,8 +13,7 @@ import Testing
 extension URL {
   /// Generate a temporary output URL for test PDFs
   public static func output(id: UUID = UUID()) -> Self {
-    FileManager.default.temporaryDirectory
-      .appendingPathComponent("html-to-pdf")
+    FileManager.default.temporaryDirectory.appendingPathComponent("html-to-pdf")
       .appendingPathComponent(id.uuidString)
   }
 
@@ -35,9 +34,7 @@ extension FileManager {
   /// Remove all items within a directory
   public func removeItems(at url: URL) throws {
     let fileURLs = try contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])
-    for fileURL in fileURLs {
-      try removeItem(at: fileURL)
-    }
+    for fileURL in fileURLs { try removeItem(at: fileURL) }
   }
 
   /// Clean up any leftover test directories from interrupted tests
@@ -53,15 +50,11 @@ extension FileManager {
       let subdirs = try fm.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
       print("🧹 Cleaning up \(subdirs.count) leftover test directories...")
 
-      for subdir in subdirs {
-        try? fm.removeItem(at: subdir)
-      }
+      for subdir in subdirs { try? fm.removeItem(at: subdir) }
 
       try? fm.removeItem(at: tempDir)
       print("✅ Cleanup complete")
-    } catch {
-      print("⚠️ Cleanup failed: \(error)")
-    }
+    } catch { print("⚠️ Cleanup failed: \(error)") }
   }
 }
 

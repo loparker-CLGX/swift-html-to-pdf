@@ -14,18 +14,13 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "AsyncStream Results",
-  .serialized
-)
-struct AsyncStreamTests {
+@Suite("AsyncStream Results", .serialized) struct AsyncStreamTests {
   @Dependency(\.pdf) var pdf
 
   @Test(
     "AsyncStream yields correct results with progressive completion",
     .dependency(\.pdf.render.configuration.namingStrategy, .init { _ in UUID().uuidString })
-  )
-  func testAsyncStreamProgressive() async throws {
+  ) func testAsyncStreamProgressive() async throws {
     try await withTemporaryDirectory { output in
       let count = 20
 
@@ -51,17 +46,12 @@ struct AsyncStreamTests {
     }
   }
 
-  @Test("AsyncStream from Documents")
-  func testAsyncStreamFromDocuments() async throws {
+  @Test("AsyncStream from Documents") func testAsyncStreamFromDocuments() async throws {
     try await withTemporaryDirectory { output in
       let count = 8
 
       let documents = (1...count).map { i in
-        PDF.Document(
-          html: TestHTML.simple,
-          title: "doc-\(i)",
-          in: output
-        )
+        PDF.Document(html: TestHTML.simple, title: "doc-\(i)", in: output)
       }
 
       let stream = try await pdf.render.client.documents(documents)
@@ -82,8 +72,7 @@ struct AsyncStreamTests {
     }
   }
 
-  @Test("Concurrent AsyncStreams")
-  func testConcurrentAsyncStreams() async throws {
+  @Test("Concurrent AsyncStreams") func testConcurrentAsyncStreams() async throws {
     try await withTemporaryDirectory { output in
       let count = 10
 

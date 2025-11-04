@@ -8,11 +8,7 @@
 import Dependencies
 import HtmlToPdfTypes
 
-extension PDF: DependencyKey {
-  public static let liveValue = PDF(
-    render: .liveValue
-  )
-}
+extension PDF: DependencyKey { public static let liveValue = PDF(render: .liveValue) }
 
 extension DependencyValues {
   public var pdf: PDF {

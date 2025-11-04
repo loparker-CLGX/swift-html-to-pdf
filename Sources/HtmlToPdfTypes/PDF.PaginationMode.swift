@@ -91,20 +91,14 @@ extension PDF.PaginationMode {
   /// This allows segmentation of render duration metrics by pagination mode.
   package var metricsLabel: String {
     switch self {
-    case .continuous:
-      return "continuous"
-    case .paginated:
-      return "paginated"
+    case .continuous: return "continuous"
+    case .paginated: return "paginated"
     case .automatic(let heuristic):
       switch heuristic {
-      case .contentLength:
-        return "automatic_content_length"
-      case .htmlStructure:
-        return "automatic_html_structure"
-      case .preferSpeed:
-        return "automatic_prefer_speed"
-      case .preferPrintReady:
-        return "automatic_prefer_print_ready"
+      case .contentLength: return "automatic_content_length"
+      case .htmlStructure: return "automatic_html_structure"
+      case .preferSpeed: return "automatic_prefer_speed"
+      case .preferPrintReady: return "automatic_prefer_print_ready"
       }
     }
   }

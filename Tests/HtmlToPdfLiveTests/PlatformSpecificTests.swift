@@ -14,15 +14,11 @@ import Testing
 
 @testable import HtmlToPdfLive
 
-@Suite(
-  "Platform-Specific Behavior"
-)
-struct PlatformSpecificTests {
+@Suite("Platform-Specific Behavior") struct PlatformSpecificTests {
   @Dependency(\.pdf) var pdf
 
   #if os(iOS)
-    @Test("iOS renders images using WebView path")
-    func iOSImageRendering() async throws {
+    @Test("iOS renders images using WebView path") func iOSImageRendering() async throws {
       try await withTemporaryPDF { output in
         let html = """
           <html>
@@ -48,8 +44,9 @@ struct PlatformSpecificTests {
       }
     }
 
-    @Test("iOS uses fast text-only rendering when no images")
-    func iOSTextOnlyRendering() async throws {
+    @Test("iOS uses fast text-only rendering when no images") func iOSTextOnlyRendering()
+      async throws
+    {
       try await withTemporaryPDF { output in
         let html = """
           <html>
@@ -70,14 +67,12 @@ struct PlatformSpecificTests {
       }
     }
 
-    @Test("iOS respects MainActor isolation")
-    func iOSMainActorIsolation() async throws {
+    @Test("iOS respects MainActor isolation") func iOSMainActorIsolation() async throws {
       let tempDir = FileManager.default.temporaryDirectory
       let output = tempDir.appendingPathComponent("test-mainactor.pdf")
       defer { try? FileManager.default.removeItem(at: output) }
 
-      @MainActor
-      func renderOnMainActor() async throws -> URL {
+      @MainActor func renderOnMainActor() async throws -> URL {
         let html = "<html><body><h1>MainActor Test</h1></body></html>"
         return try await pdf.render.client.html(html, to: output)
       }
@@ -96,8 +91,9 @@ struct PlatformSpecificTests {
     /// file sizes of text-only vs text-with-image PDFs. If Apple ever adds image
     /// support to UIMarkupTextPrintFormatter, this test will fail and alert us
     /// that we can simplify the iOS implementation.
-    @Test("UIMarkupTextPrintFormatter cannot render images")
-    func printFormatterCannotRenderImages() async throws {
+    @Test("UIMarkupTextPrintFormatter cannot render images") func printFormatterCannotRenderImages()
+      async throws
+    {
       try await withTemporaryDirectory { tempDir in
         // Load test image
         let base64PNG = try TestImages.loadBase64(named: "coenttb", extension: "png", from: .module)
@@ -174,8 +170,7 @@ struct PlatformSpecificTests {
     @Test(
       "macOS uses NSPrintOperation for paginated mode",
       .dependency(\.pdf.render.configuration.paginationMode, .paginated)
-    )
-    func macOSPaginatedRendering() async throws {
+    ) func macOSPaginatedRendering() async throws {
       try await withTemporaryPDF { output in
         // Long content to trigger pagination
         let items = (1...100).map { "<p style='margin: 20px 0;'>Item \($0)</p>" }.joined()
@@ -209,8 +204,7 @@ struct PlatformSpecificTests {
     @Test(
       "macOS uses WKWebView.createPDF for continuous mode",
       .dependency(\.pdf.render.configuration.paginationMode, .continuous)
-    )
-    func macOSContinuousRendering() async throws {
+    ) func macOSContinuousRendering() async throws {
       try await withTemporaryPDF { output in
         // Long content
         let items = (1...100).map { "<p style='margin: 20px 0;'>Item \($0)</p>" }.joined()
@@ -244,8 +238,9 @@ struct PlatformSpecificTests {
 
   // MARK: - Concurrency Limits
 
-  @Test("High concurrency is allowed (no artificial limits)")
-  func testHighConcurrencyAllowed() async throws {
+  @Test("High concurrency is allowed (no artificial limits)") func testHighConcurrencyAllowed()
+    async throws
+  {
     await withTemporaryDirectory { dir in
       #if os(macOS)
         let highConcurrency = 100  // Well above old limit of 16
@@ -267,9 +262,7 @@ struct PlatformSpecificTests {
           _ = try await configuredPDF.render(html: html, to: output)
           // Success - no error thrown
           #expect(FileManager.default.fileExists(atPath: output.path))
-        } catch {
-          Issue.record("Should not throw error for high concurrency, got: \(error)")
-        }
+        } catch { Issue.record("Should not throw error for high concurrency, got: \(error)") }
       }
     }
   }
@@ -293,8 +286,7 @@ struct PlatformSpecificTests {
     }
   }
 
-  @Test("Capability error messages are informative")
-  func testCapabilityErrorMessages() {
+  @Test("Capability error messages are informative") func testCapabilityErrorMessages() {
     let error = PrintingError.capabilityUnavailable(
       capability: "concurrency=32",
       platform: "iOS",
@@ -311,8 +303,7 @@ struct PlatformSpecificTests {
     #expect(recoverySuggestion.contains("reduce") || recoverySuggestion.contains("platform"))
   }
 
-  @Test("Page count extraction works on both platforms")
-  func pageCountExtraction() async throws {
+  @Test("Page count extraction works on both platforms") func pageCountExtraction() async throws {
     try await withTemporaryPDF { output in
       // Multi-page content
       let items = (1...100).map { "<p style='margin: 20px 0;'>Item \($0)</p>" }.joined()

@@ -25,8 +25,7 @@
   ///     to: outputURL
   /// )
   /// ```
-  @MainActor
-  public enum iOSPrintFormatterRenderer {
+  @MainActor public enum iOSPrintFormatterRenderer {
     /// Render HTML to PDF using UIMarkupTextPrintFormatter
     ///
     /// - Parameters:
@@ -36,8 +35,7 @@
     ///   - margins: Page margins in points (default: 36pt all sides)
     /// - Returns: Time taken to render in seconds
     /// - Throws: Error if rendering or file writing fails
-    @discardableResult
-    public static func renderPDF(
+    @discardableResult public static func renderPDF(
       html: String,
       to destination: URL,
       paperSize: CGSize = CGSize(width: 595.28, height: 841.89),  // A4
