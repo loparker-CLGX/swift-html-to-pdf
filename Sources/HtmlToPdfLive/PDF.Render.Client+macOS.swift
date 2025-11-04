@@ -241,24 +241,24 @@
                         metrics.recordDataConversionTime(dataTime)
 
                         #if compiler(>=6.2)
-                        await MainActor.run {
-                            webView.load(
-                                htmlData,
-                                mimeType: "text/html",
-                                characterEncodingName: "UTF-8",
-                                baseURL: config.baseURL ?? URL(string: "about:blank")!
-                            )
-                        }
+                            await MainActor.run {
+                                webView.load(
+                                    htmlData,
+                                    mimeType: "text/html",
+                                    characterEncodingName: "UTF-8",
+                                    baseURL: config.baseURL ?? URL(string: "about:blank")!
+                                )
+                            }
                         #else
-                        // Swift 6.0/6.1: Explicitly discard result to avoid warning
-                        _ = await MainActor.run {
-                            webView.load(
-                                htmlData,
-                                mimeType: "text/html",
-                                characterEncodingName: "UTF-8",
-                                baseURL: config.baseURL ?? URL(string: "about:blank")!
-                            )
-                        }
+                            // Swift 6.0/6.1: Explicitly discard result to avoid warning
+                            _ = await MainActor.run {
+                                webView.load(
+                                    htmlData,
+                                    mimeType: "text/html",
+                                    characterEncodingName: "UTF-8",
+                                    baseURL: config.baseURL ?? URL(string: "about:blank")!
+                                )
+                            }
                         #endif
                     }
                 }
@@ -602,12 +602,12 @@
 
                 // Run the print operation
                 #if compiler(>=6.2)
-                let success = printOperation.run()
+                    let success = printOperation.run()
                 #else
-                // Swift 6.0/6.1: Use assumeIsolated to bypass strict concurrency checking
-                // This is safe because NSPrintOperation.run() is designed to work on background threads
-                // despite its @MainActor annotation
-                let success = MainActor.assumeIsolated { printOperation.run() }
+                    // Swift 6.0/6.1: Use assumeIsolated to bypass strict concurrency checking
+                    // This is safe because NSPrintOperation.run() is designed to work on background threads
+                    // despite its @MainActor annotation
+                    let success = MainActor.assumeIsolated { printOperation.run() }
                 #endif
 
                 DispatchQueue.main.async {
