@@ -240,26 +240,14 @@
                         metrics.recordCSSInjectionTime(cssTime)
                         metrics.recordDataConversionTime(dataTime)
 
-                        #if compiler(>=6.2)
-                            await MainActor.run {
-                                webView.load(
-                                    htmlData,
-                                    mimeType: "text/html",
-                                    characterEncodingName: "UTF-8",
-                                    baseURL: config.baseURL ?? URL(string: "about:blank")!
-                                )
-                            }
-                        #else
-                            // Swift 6.0/6.1: Explicitly discard result to avoid warning
-                            _ = await MainActor.run {
-                                webView.load(
-                                    htmlData,
-                                    mimeType: "text/html",
-                                    characterEncodingName: "UTF-8",
-                                    baseURL: config.baseURL ?? URL(string: "about:blank")!
-                                )
-                            }
-                        #endif
+                        await MainActor.run {
+                            webView.load(
+                                htmlData,
+                                mimeType: "text/html",
+                                characterEncodingName: "UTF-8",
+                                baseURL: config.baseURL ?? URL(string: "about:blank")!
+                            )
+                        }
                     }
                 }
             }
@@ -591,50 +579,17 @@
             printOperation.showsPrintPanel = false
             printOperation.showsProgressPanel = false
 
-            // Swift 6.2+ can run NSPrintOperation on background thread
-            // Swift 6.0/6.1 require main thread to avoid deadlock with @MainActor
-            #if compiler(>=6.2)
-                // Run asynchronously on a background thread to avoid blocking main thread
-                DispatchQueue.global(qos: .userInitiated).async {
-                    [
-                        weak self, weak webView, paperSize = configuration.paperSize,
-                        mode = configuration.paginationMode
-                    ] in
-                    guard let self = self else { return }
+            // Run asynchronously on a background thread to avoid blocking main thread
+            DispatchQueue.global(qos: .userInitiated).async {
+                [
+                    weak self, weak webView, paperSize = configuration.paperSize,
+                    mode = configuration.paginationMode
+                ] in
+                guard let self = self else { return }
 
-                    let success = printOperation.run()
+                let success = printOperation.run()
 
-                    DispatchQueue.main.async {
-                        webView?.navigationDelegate = nil
-
-                        if success && FileManager.default.fileExists(atPath: self.outputURL.path) {
-                            // Use paper size from configuration - all pages have same dimensions
-                            let pageCount = printOperation.currentPage
-                            let dimensions = Array(repeating: paperSize, count: max(1, pageCount))
-                            self.printDelegate?.onFinished(pageCount, dimensions, mode)
-                        } else {
-                            let error = NSError(
-                                domain: "PDFGeneration",
-                                code: -1,
-                                userInfo: [NSLocalizedDescriptionKey: "PDF file was not created"]
-                            )
-                            self.printDelegate?.onError?(
-                                PrintingError.pdfGenerationFailed(underlyingError: error)
-                            ) ?? self.printDelegate?.onFinished(0, [], mode)
-                        }
-                    }
-                }
-            #else
-                // Swift 6.0/6.1: Run on main thread to avoid DispatchQueue.main.sync deadlock
                 DispatchQueue.main.async {
-                    [
-                        weak self, weak webView, paperSize = configuration.paperSize,
-                        mode = configuration.paginationMode
-                    ] in
-                    guard let self = self else { return }
-
-                    let success = printOperation.run()
-
                     webView?.navigationDelegate = nil
 
                     if success && FileManager.default.fileExists(atPath: self.outputURL.path) {
@@ -653,7 +608,7 @@
                         ) ?? self.printDelegate?.onFinished(0, [], mode)
                     }
                 }
-            #endif
+            }
         }
 
         func webView(

@@ -76,9 +76,11 @@ dependencies: [
 
 ### Requirements
 
-- Swift 6.0+
+- Swift 6.2+
 - macOS 14.0+ or iOS 17.0+
-- Xcode 16.0+
+- Xcode 26.0+
+
+**Note:** Swift 6.2 is required due to compiler bugs in Swift 6.0 and 6.1 that cause crashes during compilation (both in release mode and during macro expansion in debug mode). These issues are resolved in Swift 6.2.
 
 ## Quick Start
 
