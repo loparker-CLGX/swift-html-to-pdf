@@ -604,10 +604,9 @@
                 #if compiler(>=6.2)
                     let success = printOperation.run()
                 #else
-                    // Swift 6.0/6.1: Use assumeIsolated to bypass strict concurrency checking
-                    // This is safe because NSPrintOperation.run() is designed to work on background threads
-                    // despite its @MainActor annotation
-                    let success = MainActor.assumeIsolated { printOperation.run() }
+                    // Swift 6.0/6.1: Use DispatchQueue.main.sync to call MainActor method
+                    // This executes synchronously on main thread while we wait on background thread
+                    let success = DispatchQueue.main.sync { printOperation.run() }
                 #endif
 
                 DispatchQueue.main.async {
