@@ -108,7 +108,8 @@ jobs:
       - name: Test (Swift 6.0)
         run: |
           export WEBVIEW_POOL_SILENT=1
-          swift test -c release --skip "Performance|Stress Tests|WebView Memory"
+          # Use debug mode to avoid Swift 6.0 compiler crash with release optimizations
+          swift test -c debug --skip "Performance|Stress Tests|WebView Memory"
 
   # Compatibility check: Swift 6.1 on macOS
   macos-swift61:
@@ -133,4 +134,5 @@ jobs:
       - name: Test (Swift 6.1)
         run: |
           export WEBVIEW_POOL_SILENT=1
-          swift test -c release --skip "Performance|Stress Tests|WebView Memory"
+          # Use debug mode to avoid Swift 6.1 compiler crash with release optimizations
+          swift test -c debug --skip "Performance|Stress Tests|WebView Memory"
