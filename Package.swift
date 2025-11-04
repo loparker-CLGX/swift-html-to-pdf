@@ -163,8 +163,7 @@ let package = Package(
                 .define("HTML", .when(traits: ["HTML"]))
             ]
         )
-    ],
-    swiftLanguageModes: [.v6]
+    ]
 )
 
 extension String { var tests: Self { self + "Tests" } }
