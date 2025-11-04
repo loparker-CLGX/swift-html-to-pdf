@@ -56,7 +56,7 @@ extension Package.Dependency {
         .package(url: "https://github.com/coenttb/swift-resource-pool", from: "0.1.1")
     }
     static var swiftHtml: Package.Dependency {
-        .package(url: "https://github.com/coenttb/swift-html", from: "0.11.0")
+        .package(url: "https://github.com/coenttb/swift-html", from: "0.11.1")
     }
 }
 

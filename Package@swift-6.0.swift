@@ -48,7 +48,7 @@ let package = Package(
         .package(url: "https://github.com/coenttb/swift-logging-extras", from: "0.1.1"),
         .package(url: "https://github.com/apple/swift-metrics", from: "2.4.0"),
         .package(url: "https://github.com/coenttb/swift-resource-pool", from: "0.1.1"),
-        .package(url: "https://github.com/coenttb/swift-html", from: "0.11.0"),
+        .package(url: "https://github.com/coenttb/swift-html", from: "0.11.1"),
         .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0"),
     ],
     targets: [
