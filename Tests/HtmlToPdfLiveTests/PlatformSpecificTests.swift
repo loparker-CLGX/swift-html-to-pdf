@@ -140,12 +140,17 @@ import Testing
                 )
 
                 // Get file sizes
-                let textOnlySize =
-                    try FileManager.default.attributesOfItem(atPath: textOnlyOutput.path)[.size]
-                    as! Int64
-                let withImageSize =
-                    try FileManager.default.attributesOfItem(atPath: withImageOutput.path)[.size]
-                    as! Int64
+                let textOnlyAttrs = try FileManager.default.attributesOfItem(atPath: textOnlyOutput.path)
+                guard let textOnlySize = textOnlyAttrs[.size] as? Int64 else {
+                    Issue.record("Failed to get file size for text-only PDF")
+                    return
+                }
+
+                let withImageAttrs = try FileManager.default.attributesOfItem(atPath: withImageOutput.path)
+                guard let withImageSize = withImageAttrs[.size] as? Int64 else {
+                    Issue.record("Failed to get file size for with-image PDF")
+                    return
+                }
 
                 // Calculate size difference
                 let sizeDifference = abs(withImageSize - textOnlySize)

@@ -156,7 +156,7 @@ import Testing
         await withTemporaryDirectory { dir in
             let html = (1...20).map { i in "<html><body><h1>Document \(i)</h1></body></html>" }
 
-            let documents = html.enumerated().map { (index, html) in
+            let documents = html.enumerated().map { index, html in
                 PDF.Document(html: html, title: "doc-\(index)", in: dir)
             }
 

@@ -16,6 +16,7 @@ disabled_rules:
   - trailing_comma  # Handled by swift-format
   - large_tuple  # Sometimes necessary for complex operations
   - type_name  # Allow iOS-prefixed types like iOSPrintFormatterRenderer
+  - nesting  # Allow deeply nested enums for namespacing
 
 # Enabled Opt-In Rules (helpful additions)
 opt_in_rules:

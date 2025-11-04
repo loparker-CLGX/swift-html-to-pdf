@@ -46,7 +46,7 @@
             }
 
             // Create and cache new print info
-            let printInfo = NSPrintInfo.shared.copy() as! NSPrintInfo
+            let printInfo = (NSPrintInfo.shared.copy() as? NSPrintInfo) ?? NSPrintInfo.shared
             printInfo.paperSize = config.paperSize
             printInfo.topMargin = config.margins.top
             printInfo.leftMargin = config.margins.left
