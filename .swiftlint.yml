@@ -30,6 +30,8 @@ opt_in_rules:
 included:
   - Sources
   - Tests
+  - Package.swift
+  - Package@swift-6.0.swift
 
 excluded:
   - .build
