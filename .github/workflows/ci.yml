@@ -55,6 +55,32 @@ jobs:
             --breakage-allowlist-path .swift-api-breakage-allowlist || true
         continue-on-error: true
 
+  # Production build: Latest Swift on macOS with release build
+  macos-latest-release:
+    name: macOS (Swift 6.2, release)
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Select Xcode 26.0
+        run: sudo xcode-select -s /Applications/Xcode_26.0.app
+
+      - name: Print Swift version
+        run: swift --version
+
+      - name: Cache Swift packages
+        uses: actions/cache@v4
+        with:
+          path: .build
+          key: ${{ runner.os }}-spm-release-v1-${{ hashFiles('Package.swift') }}
+          restore-keys: |
+            ${{ runner.os }}-spm-release-v1-
+
+      - name: Test (Release)
+        run: |
+          export WEBVIEW_POOL_SILENT=1
+          swift test -c release --skip "Performance|Stress Tests|WebView Memory"
+
   # Compatibility check: Minimum supported Swift version (6.0) on macOS
   # Note: Must run on macOS (requires WebKit). Uses Package@swift-6.0.swift
   macos-compat:
