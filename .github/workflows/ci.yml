@@ -110,7 +110,7 @@ jobs:
           export WEBVIEW_POOL_SILENT=1
           xcodebuild test \
             -scheme swift-html-to-pdf-Package \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             -skipPackagePluginValidation \
             -skipMacroValidation
@@ -141,7 +141,7 @@ jobs:
           export WEBVIEW_POOL_SILENT=1
           xcodebuild test \
             -scheme swift-html-to-pdf-Package \
-            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -destination 'generic/platform=iOS Simulator' \
             -configuration Release \
             -skipPackagePluginValidation \
             -skipMacroValidation
