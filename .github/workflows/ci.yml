@@ -108,9 +108,12 @@ jobs:
       - name: Test (iOS Simulator)
         run: |
           export WEBVIEW_POOL_SILENT=1
+          # Find first available iPhone simulator
+          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          echo "Using simulator: $DEVICE_ID"
           xcodebuild test \
             -scheme swift-html-to-pdf-Package \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -configuration Debug \
             -skipPackagePluginValidation \
             -skipMacroValidation
@@ -139,9 +142,12 @@ jobs:
       - name: Test (iOS Simulator, Release)
         run: |
           export WEBVIEW_POOL_SILENT=1
+          # Find first available iPhone simulator
+          DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
+          echo "Using simulator: $DEVICE_ID"
           xcodebuild test \
             -scheme swift-html-to-pdf-Package \
-            -destination 'generic/platform=iOS Simulator' \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -configuration Release \
             -skipPackagePluginValidation \
             -skipMacroValidation
