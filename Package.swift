@@ -89,6 +89,9 @@ let package = Package(
             dependencies: [
                 .htmlToPdfTypes, .dependencies, .dependenciesMacros, .loggingExtras, .metrics,
                 .resourcePool,
+            ],
+            swiftSettings: [
+                .enableUpcomingFeature("StrictConcurrency")
             ]
         ),
 

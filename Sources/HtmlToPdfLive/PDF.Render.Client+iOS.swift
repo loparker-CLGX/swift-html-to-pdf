@@ -128,11 +128,9 @@
 
         @Dependency(\.pdf.render.metrics) var metrics
         @Dependency(\.logger) var logger
-        let metricsRef = metrics
-        let loggerRef = logger
 
         return AsyncThrowingStream<PDF.Render.Result, Error> { continuation in
-            Task {
+            Task { [metrics, logger] in
                 var completedCount = 0
                 do {
 
@@ -174,7 +172,7 @@
                             )
 
                             // Record metrics for successful PDF generation
-                            metricsRef.recordSuccess(duration: duration, mode: mode)
+                            metrics.recordSuccess(duration: duration, mode: mode)
 
                             continuation.yield(result)
 
@@ -208,9 +206,9 @@
                 } catch {
                     // Record metrics for failed PDF generation
                     let printingError = error as? PrintingError
-                    metricsRef.recordFailure(error: printingError)
+                    metrics.recordFailure(error: printingError)
 
-                    loggerRef.error(
+                    logger.error(
                         "Batch rendering failed",
                         metadata: [
                             "completed": "\(completedCount)", "total": "\(documentsArray.count)",
