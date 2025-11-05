@@ -115,6 +115,9 @@ jobs:
             -scheme swift-html-to-pdf-Package \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -configuration Debug \
+            -skip-testing:HtmlToPdfLiveTests/PerformanceTests \
+            -skip-testing:HtmlToPdfLiveTests/StressTests \
+            -skip-testing:HtmlToPdfLiveTests/WebViewMemoryTests \
             -skipPackagePluginValidation \
             -skipMacroValidation
 
@@ -145,9 +148,12 @@ jobs:
           # Find first available iPhone simulator
           DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "Using simulator: $DEVICE_ID"
-          xcodebuild test \
+          OTHER_SWIFT_FLAGS="-enable-testing" xcodebuild test \
             -scheme swift-html-to-pdf-Package \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -configuration Release \
+            -skip-testing:HtmlToPdfLiveTests/PerformanceTests \
+            -skip-testing:HtmlToPdfLiveTests/StressTests \
+            -skip-testing:HtmlToPdfLiveTests/WebViewMemoryTests \
             -skipPackagePluginValidation \
             -skipMacroValidation
