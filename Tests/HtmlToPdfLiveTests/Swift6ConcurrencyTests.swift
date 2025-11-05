@@ -39,11 +39,7 @@ import Testing
         try await withTemporaryDirectory { output in
             @Dependency(\.pdf) var pdf
 
-            let htmlStrings = [
-                "<h1>Document 1</h1>",
-                "<h1>Document 2</h1>",
-                "<h1>Document 3</h1>",
-            ]
+            let htmlStrings = ["<h1>Document 1</h1>", "<h1>Document 2</h1>", "<h1>Document 3</h1>"]
 
             var completedCount = 0
             for try await result in try await pdf.render.client.html(htmlStrings, to: output) {
@@ -62,11 +58,7 @@ import Testing
             @Dependency(\.pdf) var pdf
 
             let documents = (1...5).map { i in
-                PDF.Document(
-                    html: "<h1>Document \(i)</h1>",
-                    title: "doc-\(i)",
-                    in: output
-                )
+                PDF.Document(html: "<h1>Document \(i)</h1>", title: "doc-\(i)", in: output)
             }
 
             var completedCount = 0
@@ -97,7 +89,10 @@ import Testing
 
             // This might fail or succeed, but shouldn't crash with task-local error
             do {
-                let result = try await pdf.render.client.html(problematicHTML, to: output.appendingPathComponent("test.pdf"))
+                let result = try await pdf.render.client.html(
+                    problematicHTML,
+                    to: output.appendingPathComponent("test.pdf")
+                )
                 #expect(FileManager.default.fileExists(atPath: result.path))
             } catch {
                 // If it fails, that's okay - we're just testing it doesn't crash
@@ -139,8 +134,7 @@ import Testing
     @Test(
         "Metrics recording doesn't crash with task-local binding",
         .dependency(\.pdf.render.configuration.concurrency, 2)
-    )
-    func testMetricsRecordingTaskLocalSafety() async throws {
+    ) func testMetricsRecordingTaskLocalSafety() async throws {
         try await withTemporaryDirectory { output in
             @Dependency(\.pdf) var pdf
 
