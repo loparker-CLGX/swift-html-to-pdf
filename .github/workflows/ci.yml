@@ -37,17 +37,13 @@ jobs:
 
       # Note: swift test builds automatically, no separate build step needed
       - name: Test
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          swift test -c debug --skip "Performance|Stress Tests|WebView Memory"
+        run: swift test -c debug --skip "Performance|Stress Tests|WebView Memory"
 
       - name: Validate Package.swift
         run: swift package dump-package
 
       - name: Run README verification tests
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          swift test --filter ReadmeValidationTests
+        run: swift test --filter ReadmeValidationTests
 
       - name: Check for API breaking changes
         run: |
@@ -77,9 +73,7 @@ jobs:
             ${{ runner.os }}-spm-release-v1-
 
       - name: Test (Release)
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          swift test -c release --skip "Performance|Stress Tests|WebView Memory"
+        run: swift test -c release --skip "Performance|Stress Tests|WebView Memory"
 
   # iOS development workflow: Latest Swift on iOS Simulator with debug build
   ios-latest:
@@ -107,7 +101,6 @@ jobs:
 
       - name: Test (iOS Simulator)
         run: |
-          export WEBVIEW_POOL_SILENT=1
           # Find first available iPhone simulator
           DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "Using simulator: $DEVICE_ID"
@@ -144,7 +137,6 @@ jobs:
 
       - name: Test (iOS Simulator, Release)
         run: |
-          export WEBVIEW_POOL_SILENT=1
           # Find first available iPhone simulator
           DEVICE_ID=$(xcrun simctl list devices available | grep "iPhone" | head -1 | sed -E 's/.*\(([A-F0-9-]+)\).*/\1/')
           echo "Using simulator: $DEVICE_ID"

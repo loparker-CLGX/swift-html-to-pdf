@@ -42,7 +42,6 @@ run_test "Build (Debug)" "swift build" || FAILED=1
 run_test "Build (Release)" "swift build -c release" || FAILED=1
 
 # Test 4: Run Tests
-export WEBVIEW_POOL_SILENT=1
 run_test "Tests (Debug)" "swift test" || FAILED=1
 
 # Test 5: Run Tests in Release

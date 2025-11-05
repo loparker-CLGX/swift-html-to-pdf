@@ -28,8 +28,6 @@ jobs:
 
       - name: Run performance benchmark
         run: |
-          export WEBVIEW_POOL_SILENT=1
-
           echo "🚀 Running Performance Benchmark"
           echo "================================"
 
@@ -59,8 +57,6 @@ jobs:
 
       - name: Run WebView pool tests
         run: |
-          export WEBVIEW_POOL_SILENT=1
-
           echo "🔄 Testing WebView Pool Performance"
           echo "===================================="
 
@@ -70,8 +66,6 @@ jobs:
 
       - name: Memory usage test
         run: |
-          export WEBVIEW_POOL_SILENT=1
-
           echo "💾 Testing Memory Usage"
           echo "======================="
 

@@ -37,9 +37,7 @@ jobs:
         run: swift build -c release
 
       - name: Run all tests
-        run: |
-          export WEBVIEW_POOL_SILENT=1
-          swift test -c release
+        run: swift test -c release
 
       - name: Verify documentation builds
         run: |
