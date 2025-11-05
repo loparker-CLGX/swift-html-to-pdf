@@ -129,7 +129,8 @@ extension Tag { @Tag static var stress: Self }
                     webViewAcquisitionTimeout: .seconds(600)
                 )
             } operation: {
-                let stream = try await PDF.Render.Client.macOS.documents(documents)
+                @Dependency(\.pdf.render.client) var client
+                let stream = try await client.documents(documents)
 
                 // Metrics are automatically recorded
                 for try await _ in stream {
